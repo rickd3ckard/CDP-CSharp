@@ -18,10 +18,12 @@ namespace CDP.Objects
         {
             this.Parent = Browser;
             this.Id = Id;
+            this.DOM = new DOM(this, Id);
         }
 
         public Browser Parent { get; }
         public String Id { get; }
+        public DOM DOM { get; }
 
         public void NavigateTo(string URL, TimeSpan? TimeOut = null)
         {
@@ -57,33 +59,6 @@ namespace CDP.Objects
             }
         }
 
-        public void GetDOMDocument(int depth, Boolean pierce)
-        {
-            using (var webSocket = new WebSocket("ws://localhost:9222/devtools/page/" + this.Id))
-            {
-                webSocket.OnMessage += (sender, e) =>
-                {
-                    Console.WriteLine(e.Data);
-                };
-
-                var getDocumentCommand = new
-                {
-                    id = 1,
-                    method = "DOM.getDocument",
-                    @params = new
-                    {
-                        depth = -1,   
-                        pierce = true
-                    }
-                };
-
-                webSocket.Connect();
-                webSocket.Send(JsonSerializer.Serialize(getDocumentCommand));
-
-                Thread.Sleep(10000);
-            }
-        }
-
         public async Task Focus() // could be bool to chekc success
         {
             using (HttpClient client = new HttpClient())
@@ -96,6 +71,5 @@ namespace CDP.Objects
         {
             await this.Parent.CloseTab(this.Id);
         }
-
     }
 }

@@ -4,8 +4,8 @@
  * See: https://unlicense.org/
  */
 
-using System.Text.Json;
 using CDP.Objects;
+using System.Text.Json;
 
 class Program // test environement
 {
@@ -17,10 +17,7 @@ class Program // test environement
         Tab defaultTab = browser.Tabs[0];
 
         defaultTab.NavigateTo(@"https://www.maisonsmoches.be/contact/");
-
-        defaultTab.GetDOMDocument(-1,false);
-
-        defaultTab.NavigateTo(@"https://www.youtube.com/watch?v=7wxDn56hF8Y");
-        defaultTab.NavigateTo(@"https://www.canva.com/design/DAGwio5xcFM/Z7w7nbe_syCGXkRgiYLsmw/edit");
+        JsonDocument DOM = defaultTab.DOM.GetDocument(-1, false);
+        Console.WriteLine(DOM.RootElement.GetRawText()) ;
     }
 }
