@@ -1,4 +1,10 @@
-﻿using System.Diagnostics;
+﻿/* 
+ * Public domain software, no restrictions. 
+ * Released by rickd3ckard: https://github.com/rickd3ckard 
+ * See: https://unlicense.org/
+ */
+
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using WebSocketSharp;
