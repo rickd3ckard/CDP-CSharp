@@ -9,12 +9,14 @@ using System.Text.Json;
 using WebSocketSharp;
 using CDP.Commands;
 using CDP.Utils;
+using System.Runtime.CompilerServices;
 
 namespace CDP.Objects
 {
     public class DOM
     {
         private JsonDocument? _document;
+
         public DOM(Tab Parent, string Id)
         {
             this.Id = Id;
@@ -94,6 +96,36 @@ namespace CDP.Objects
 
             this.WebSocket.OnMessage -= handler;
             return resultNodeId;
+        }
+
+        public BoxModel GetBoxModel(int NodeId, TimeSpan? TimeOut = null)
+        {
+            if (_document == null) { throw new NullReferenceException(); }
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+
+            bool commandCompleted = false; int commandId = 1;
+            JsonDocument resultDocument = JsonDocument.Parse("{}");
+            EventHandler<MessageEventArgs> handler = (sender, e) => {
+                Console.ForegroundColor = ConsoleColor.DarkYellow;
+                Console.WriteLine(e.Data + "\n\t" ); Console.ResetColor();
+                
+                CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                if (result == null) { throw new InvalidCastException(); }
+                if (result.Id != commandId) { return; }
+                resultDocument = result.Result; commandCompleted = true;
+            };
+
+            this.WebSocket.OnMessage += handler;
+            this.WebSocket.Send(new DOMGetBoxModelCommand(1, NodeId).ToString());
+
+            while (commandCompleted == false)
+            {
+                if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                Thread.Sleep(100);
+            }
+
+            return new BoxModel(resultDocument);
         }
     }
 }
