@@ -32,7 +32,7 @@ namespace CDP.Objects
             bool DOMNodeRetrieved = false; int commandId = 1;
             JsonDocument DOMDocument = JsonDocument.Parse("{}");
             
-            using (var webSocket = new WebSocket("ws://localhost:9222/devtools/page/" + this.Id))
+            using (WebSocket webSocket = new WebSocket("ws://localhost:9222/devtools/page/" + this.Id))
             {
                 webSocket.OnMessage += (sender, e) =>
                 {
@@ -55,6 +55,51 @@ namespace CDP.Objects
 
                 webSocket.Close(); return DOMDocument;
             }
+        }
+
+        public int QuerySelector(int NodeId, string Selector, TimeSpan? TimeOut = null)
+        {
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+            int requestedNodeId = -1;
+
+            using (WebSocket webSocket = new WebSocket("ws://localhost:9222/devtools/page/" + this.Id))
+            {
+                bool DOMGetDocumentCompleted = false; int getDocumentCommandId = 1;
+                bool DOMQuerySelectorCompleted = false; int querSelectorCommandId = 2;
+                
+                webSocket.OnMessage += (sender, e) =>
+                {
+                    CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                    if (result == null) { throw new InvalidCastException(); }
+
+                    if (result.Id == getDocumentCommandId) { DOMGetDocumentCompleted = true; }
+                    else if (result.Id == querSelectorCommandId) 
+                    { 
+                        DOMQuerySelectorCompleted = true;
+                        requestedNodeId  = result.Result.RootElement.GetProperty("nodeId").GetInt32();
+                    }
+                    else { throw new InvalidOperationException(); }
+                };
+             
+                webSocket.Connect();   
+                
+                webSocket.Send(new DOMGetDocumentCommand(getDocumentCommandId, -1, true).ToString());               
+                while (!DOMGetDocumentCompleted)
+                {
+                    if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                    Thread.Sleep(100);
+                }
+
+                webSocket.Send(new DOMQuerySelectorCommad(querSelectorCommandId, NodeId, Selector).ToString());                
+                while (!DOMQuerySelectorCompleted)
+                {
+                    if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                    Thread.Sleep(100);
+                }                           
+            }
+
+            return requestedNodeId;
         }
     }
 }

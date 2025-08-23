@@ -5,7 +5,6 @@
  */
 
 using CDP.Objects;
-using System.Text.Json;
 
 class Program // test environement
 {
@@ -17,7 +16,8 @@ class Program // test environement
         Tab defaultTab = browser.Tabs[0];
 
         defaultTab.NavigateTo(@"https://www.maisonsmoches.be/contact/");
-        JsonDocument DOM = defaultTab.DOM.GetDocument(-1, false);
-        Console.WriteLine(DOM.RootElement.GetRawText()) ;
+
+        int nodeId = defaultTab.DOM.QuerySelector(1, "input[class=\"wpcf7-form-control wpcf7-submit has-spinner button button--small button--primary-inverse\"]", TimeSpan.FromSeconds(10));
+        Console.WriteLine(nodeId);
     }
 }
