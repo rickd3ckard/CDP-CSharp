@@ -22,7 +22,12 @@ namespace CDP.Objects
             this.WebSocket = new WebSocket("ws://localhost:9222/devtools/page/" + Id);
             this.WebSocket.Connect();
 
-            // ThisWebsocket.OnClose() => throw exception && _dccument = null;
+            EventHandler<CloseEventArgs> closeEvent = (sender, e) => {
+                _document = null;
+                throw new InvalidOperationException();
+            };
+
+            this.WebSocket.OnClose += closeEvent;
         }
 
         public string Id { get; }
