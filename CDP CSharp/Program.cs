@@ -5,7 +5,7 @@
  */
 
 using CDP.Objects;
-using System.Diagnostics;
+using CDP.Utils;
 
 class Program // test environement
 {
@@ -24,6 +24,9 @@ class Program // test environement
         int nodeId = defaultTab.DOM.QuerySelector(1, "a[href=\"https://www.maisonsmoches.be/demander-une-offre-dachat/\"]", TimeSpan.FromSeconds(10));
         Console.WriteLine(nodeId);
 
-        Console.WriteLine(defaultTab.DOM.GetBoxModel(nodeId));
+        BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
+        defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
+
+
     }
 }

@@ -9,7 +9,9 @@ using System.Text.Json;
 using WebSocketSharp;
 using CDP.Commands;
 using CDP.Utils;
-using System.Runtime.CompilerServices;
+using System.ComponentModel.Design;
+using System.Net.Http.Headers;
+using System.Threading;
 
 namespace CDP.Objects
 {
@@ -125,7 +127,36 @@ namespace CDP.Objects
                 Thread.Sleep(100);
             }
 
+            this.WebSocket.OnMessage -= handler;
             return new BoxModel(resultDocument);
+        }
+
+        public void DispatchMouseEvent(Point MousePosition, MouseButtonEnum MouseButton, TimeSpan? TimeOut = null)
+        {
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+
+            bool pressCommandCompleted = false; int pressCommandId = 1;
+            bool releaseCommandCompleted = false; int releasesCommandId = 2;
+            EventHandler<MessageEventArgs> handler = (sender, e) =>
+            {
+                CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                if (result == null) { throw new InvalidCastException(); }
+                if (result.Id == pressCommandId) { pressCommandCompleted = true; }
+                if (result.Id == releasesCommandId) { releaseCommandCompleted = true; }      
+            };
+
+            this.WebSocket.OnMessage += handler;
+            this.WebSocket.Send(new InputDispatchMouseEventCommand(pressCommandId, MouseButton, MouseEventTypeEnum.mousePressed, MousePosition).ToString());
+            this.WebSocket.Send(new InputDispatchMouseEventCommand(releasesCommandId, MouseButton, MouseEventTypeEnum.mouseReleased, MousePosition).ToString());
+
+            while (pressCommandCompleted == false || releaseCommandCompleted == false)
+            {
+                if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                Thread.Sleep(100);
+            }
+
+            this.WebSocket.OnMessage -= handler;
         }
     }
 }
