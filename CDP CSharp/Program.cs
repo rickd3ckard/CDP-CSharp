@@ -19,14 +19,16 @@ class Program // test environement
         defaultTab.NavigateTo(@"https://www.maisonsmoches.be/");
         defaultTab.DOM.GetDocument(-1, true);
 
-        // Console.WriteLine(defaultTab.DOM.Document?.RootElement.GetRawText());
+        
 
-        int nodeId = defaultTab.DOM.QuerySelector(1, "a[href=\"https://www.maisonsmoches.be/demander-une-offre-dachat/\"]", TimeSpan.FromSeconds(10));
+        int nodeId = defaultTab.DOM.QuerySelector(1, "a[href=\"https://www.linkedin.com/company/nous-achetons-des-maisons-moches/\"]", TimeSpan.FromSeconds(10));
         Console.WriteLine(nodeId);
 
         BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
+        Console.WriteLine(box.ToString());
         defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
 
-
+        Thread.Sleep(3000);
+        Console.WriteLine(defaultTab.LayoutViewport);
     }
 }

@@ -9,9 +9,6 @@ using System.Text.Json;
 using WebSocketSharp;
 using CDP.Commands;
 using CDP.Utils;
-using System.ComponentModel.Design;
-using System.Net.Http.Headers;
-using System.Threading;
 
 namespace CDP.Objects
 {
@@ -108,10 +105,7 @@ namespace CDP.Objects
 
             bool commandCompleted = false; int commandId = 1;
             JsonDocument resultDocument = JsonDocument.Parse("{}");
-            EventHandler<MessageEventArgs> handler = (sender, e) => {
-                Console.ForegroundColor = ConsoleColor.DarkYellow;
-                Console.WriteLine(e.Data + "\n\t" ); Console.ResetColor();
-                
+            EventHandler<MessageEventArgs> handler = (sender, e) => {          
                 CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
                 if (result == null) { throw new InvalidCastException(); }
                 if (result.Id != commandId) { return; }
