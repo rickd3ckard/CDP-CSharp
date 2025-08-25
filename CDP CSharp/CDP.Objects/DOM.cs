@@ -25,7 +25,7 @@ namespace CDP.Objects
 
             EventHandler<CloseEventArgs> closeEvent = (sender, e) => {
                 _document = null;
-                throw new InvalidOperationException();
+                if (this.Parent.Parent.CloseRequested == false) { throw new InvalidOperationException();}             
             };
 
             this.WebSocket.OnClose += closeEvent;
@@ -188,7 +188,6 @@ namespace CDP.Objects
             bool releaseCommandCompleted = false; int releaseCommandId = 2;
             EventHandler<MessageEventArgs> hander = (sender, e) =>
             {
-                Console.WriteLine(e.Data);
                 CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
                 if (result == null) { throw new InvalidCastException(); }
 

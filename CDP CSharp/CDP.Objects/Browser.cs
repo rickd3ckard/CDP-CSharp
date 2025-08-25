@@ -28,6 +28,7 @@ namespace CDP.Objects
         public List<WebsocketTarget> WebsocketTargets { get; set; }
         public List<Tab> Tabs { get; set; }
         public BrowserVersionMetadata Version { get; set; }
+        public bool CloseRequested { get; set; }
 
         public async Task<Browser?> Start()
         {
@@ -110,10 +111,12 @@ namespace CDP.Objects
 
         public void Close()
         {
+            this.CloseRequested = true;
             using (WebSocket socket = new WebSocket(this.Version.WebSocketDebuggerUrl))
             {
                 socket.Connect();
                 socket.Send(new BrowserCloseCommand(1).ToString());
+                socket.Close();
             }
         }
     }

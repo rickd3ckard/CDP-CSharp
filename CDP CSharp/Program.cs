@@ -13,10 +13,7 @@ class Program // test environement
     {
         Browser? browser = await new Browser().Start();
         if (browser == null) { return; }
-
-        browser.Close(); Thread.Sleep(3000); Console.WriteLine("Yeet");
-        return;
-
+    
         Tab defaultTab = browser.Tabs[0];
         
         defaultTab.NavigateTo(@"https://www.maisonsmoches.be/contact/");
@@ -29,5 +26,6 @@ class Program // test environement
         defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
 
         defaultTab.DOM.WriteText("Hello, world!");
+        browser.Close();
     }
 }
