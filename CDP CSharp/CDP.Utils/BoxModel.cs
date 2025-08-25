@@ -22,6 +22,7 @@ namespace CDP.Utils
 
             this.Width = modelElement.GetProperty("width").GetDouble();
             this.Height = modelElement.GetProperty("height").GetDouble();
+            this.Center = ComputeCente();
         }
 
         // An array of quad vertices, x immediately followed by y for each point, points clock-wise.
@@ -31,6 +32,7 @@ namespace CDP.Utils
         public Point[] Margin { get; }
         public double Width { get; }
         public double Height { get; }
+        public Point Center { get; }
 
         private double[] ExtractDoubleArray(string TargetProperty, JsonElement ModelElement)
         {
@@ -52,6 +54,13 @@ namespace CDP.Utils
             }
 
             return pointList.ToArray();
+        }
+
+        private Point ComputeCente()
+        {
+            double X = this.Content[0].X + ((this.Content[1].X - this.Content[0].X) / 2);
+            double Y = this.Content[1].Y + ((this.Content[2].Y - this.Content[1].Y) / 2);
+            return new Point(X, Y);
         }
 
         public override string ToString()

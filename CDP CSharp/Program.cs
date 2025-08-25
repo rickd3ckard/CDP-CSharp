@@ -16,12 +16,12 @@ class Program // test environement
 
         Tab defaultTab = browser.Tabs[0];
 
-        defaultTab.NavigateTo(@"https://www.maisonsmoches.be/contact/");
+        defaultTab.NavigateTo(@"https://www.maisonsmoches.be/");
         defaultTab.DOM.GetDocument(-1, true);
 
         // Console.WriteLine(defaultTab.DOM.Document?.RootElement.GetRawText());
 
-        int nodeId = defaultTab.DOM.QuerySelector(1, "input[class=\"wpcf7-form-control wpcf7-submit has-spinner button button--small button--primary-inverse\"]", TimeSpan.FromSeconds(10));
+        int nodeId = defaultTab.DOM.QuerySelector(1, "a[href=\"https://www.maisonsmoches.be/demander-une-offre-dachat/\"]", TimeSpan.FromSeconds(10));
         Console.WriteLine(nodeId);
 
         Console.WriteLine(defaultTab.DOM.GetBoxModel(nodeId));
