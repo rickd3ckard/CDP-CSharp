@@ -178,5 +178,35 @@ namespace CDP.Objects
 
             this.WebSocket.OnMessage -= handler;
         }
+
+        public void DispatchKeyEvent(Char Key, TimeSpan? TimeOut = null)
+        {
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+
+            bool pressCommandCompleted = false; int pressCommandId = 1;
+            bool releaseCommandCompleted = false; int releaseCommandId = 2;
+            EventHandler<MessageEventArgs> hander = (sender, e) =>
+            {
+                Console.WriteLine(e.Data);
+                CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                if (result == null) { throw new InvalidCastException(); }
+
+                if (result.Id == pressCommandId) { pressCommandCompleted = true; }
+                if (result.Id == releaseCommandId) { releaseCommandCompleted = true; }
+            };
+
+            this.WebSocket.OnMessage += hander;
+            this.WebSocket.Send(new InputDispatchKeyEventCommand(pressCommandId, "keyDown", Key).ToString());
+            this.WebSocket.Send(new InputDispatchKeyEventCommand(releaseCommandId, "keyUp", Key).ToString());
+
+            while (pressCommandCompleted == false || releaseCommandCompleted == false)
+            {
+                if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                Thread.Sleep(100);
+            }
+
+            this.WebSocket.OnMessage -= hander;
+        }
     }
 }

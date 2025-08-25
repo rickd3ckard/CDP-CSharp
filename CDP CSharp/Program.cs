@@ -15,15 +15,19 @@ class Program // test environement
         if (browser == null) { return; }
 
         Tab defaultTab = browser.Tabs[0];
-
-        defaultTab.NavigateTo(@"https://www.maisonsmoches.be/");
+        
+        defaultTab.NavigateTo(@"https://www.maisonsmoches.be/contact/");
         defaultTab.DOM.GetDocument(-1, true);
        
-        int nodeId = defaultTab.DOM.QuerySelector(1, "a[href=\"https://www.linkedin.com/company/nous-achetons-des-maisons-moches/\"]", TimeSpan.FromSeconds(10));
+        int nodeId = defaultTab.DOM.QuerySelector(1, "input[class=\"wpcf7-form-control wpcf7-text wpcf7-validates-as-required\"]", TimeSpan.FromSeconds(10));
         defaultTab.DOM.ScrollIntoViewIfNeeded(nodeId);
 
         BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
-        Console.WriteLine(box);
         defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
+
+        defaultTab.DOM.DispatchKeyEvent('C');
+
+        Thread.Sleep(1000);
+        foreach (Tab tab in browser.Tabs) {await browser.CloseTab(tab.Id); }
     }
 }
