@@ -152,5 +152,31 @@ namespace CDP.Objects
 
             this.WebSocket.OnMessage -= handler;
         }
+
+        public void ScrollIntoViewIfNeeded(int NodeId, TimeSpan? TimeOut = null) 
+        {
+            if (_document == null) { throw new NullReferenceException(); }
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+
+            bool commandCompleted = false; int commandId = 1;
+            EventHandler<MessageEventArgs> handler = (sender, e) =>
+            {
+                CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                if (result == null) { throw new InvalidCastException(); }
+                if (result.Id == commandId) { commandCompleted = true; }
+            };
+
+            this.WebSocket.OnMessage += handler;
+            this.WebSocket.Send(new DOMScrollIntoViewIfNeeded(commandId, NodeId).ToString());
+    
+            while (commandCompleted == false)
+            {
+                if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                Thread.Sleep(100);
+            }
+
+            this.WebSocket.OnMessage -= handler;
+        }
     }
 }

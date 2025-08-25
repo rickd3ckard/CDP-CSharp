@@ -89,8 +89,6 @@ namespace CDP.Objects
                     if (result == null) {throw new InvalidOperationException(); }                 
                     if (result.Id == 1)
                     {
-                        Thread.Sleep(3000);
-                        Console.WriteLine(result.Result.RootElement.GetRawText());
                         layout = JsonSerializer.Deserialize<LayoutViewport>(result.Result.RootElement.GetProperty("cssLayoutViewport").GetRawText());
                         if (layout == null) {throw new InvalidOperationException(); }
                         commandCompleted = true;

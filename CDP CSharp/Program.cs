@@ -18,17 +18,12 @@ class Program // test environement
 
         defaultTab.NavigateTo(@"https://www.maisonsmoches.be/");
         defaultTab.DOM.GetDocument(-1, true);
-
-        
-
+       
         int nodeId = defaultTab.DOM.QuerySelector(1, "a[href=\"https://www.linkedin.com/company/nous-achetons-des-maisons-moches/\"]", TimeSpan.FromSeconds(10));
-        Console.WriteLine(nodeId);
+        defaultTab.DOM.ScrollIntoViewIfNeeded(nodeId);
 
         BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
-        Console.WriteLine(box.ToString());
+        Console.WriteLine(box);
         defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
-
-        Thread.Sleep(3000);
-        Console.WriteLine(defaultTab.LayoutViewport);
     }
 }
