@@ -6,7 +6,12 @@
 
 using System.Diagnostics;
 using System.Text.Json;
+using WebSocketSharp;
 using CDP.Utils;
+using CDP.Commands;
+
+// https://chromedevtools.github.io/devtools-protocol/
+// https://chromedevtools.github.io/devtools-protocol/tot/
 
 namespace CDP.Objects
 {
@@ -17,14 +22,16 @@ namespace CDP.Objects
         {
             this.WebsocketTargets = new List<WebsocketTarget>();
             this.Tabs = new List<Tab>();
+            this.Version = new BrowserVersionMetadata();
         }
 
         public List<WebsocketTarget> WebsocketTargets { get; set; }
         public List<Tab> Tabs { get; set; }
+        public BrowserVersionMetadata Version { get; set; }
 
         public async Task<Browser?> Start()
         {
-            string chromePath = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe";
+            string chromePath = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"; // input 
             string arguments = "--remote-debugging-port=9222 --no-sandbox --user-data-dir=\"C:\\temp\\chrome-debug\"";
 
             ProcessStartInfo startInfo = new ProcessStartInfo
@@ -36,8 +43,9 @@ namespace CDP.Objects
 
             try { Process.Start(startInfo); }
             catch { return null; }
-
+            
             await InitWebsocketTargets();
+            await GetBrowserVersionMetadata();
             return this;
         }
 
@@ -47,7 +55,7 @@ namespace CDP.Objects
 
             using (HttpClient client = new HttpClient())
             {
-                HttpResponseMessage response = await client.GetAsync("http://localhost:9222/json");
+                HttpResponseMessage response = await client.GetAsync(@"http://localhost:9222/json");
                 string jsonResponse = await response.Content.ReadAsStringAsync();
 
                 this.WebsocketTargets = JsonSerializer.Deserialize<List<WebsocketTarget>>(jsonResponse) ?? new List<WebsocketTarget>();
@@ -56,6 +64,19 @@ namespace CDP.Objects
                 {
                     if (socket.Type == "page") { this.Tabs.Add(new Tab(this, socket.Id)); }
                 }
+            }
+        }
+
+        private async Task GetBrowserVersionMetadata()
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                HttpResponseMessage response = await client.GetAsync(@"http://localhost:9222/json/version");
+                string jsonReponse = await response.Content.ReadAsStringAsync();
+
+                BrowserVersionMetadata? version = JsonSerializer.Deserialize<BrowserVersionMetadata>(jsonReponse);
+                if (version == null) { throw new InvalidCastException(); }
+                this.Version = version;
             }
         }
 
@@ -84,6 +105,15 @@ namespace CDP.Objects
                 this.Tabs.Add(new Tab(this, newTabSocket.Id));
 
                 return newTab;
+            }
+        }
+
+        public void Close()
+        {
+            using (WebSocket socket = new WebSocket(this.Version.WebSocketDebuggerUrl))
+            {
+                socket.Connect();
+                socket.Send(new BrowserCloseCommand(1).ToString());
             }
         }
     }
