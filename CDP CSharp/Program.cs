@@ -25,9 +25,7 @@ class Program // test environement
         BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
         defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
 
-        defaultTab.DOM.DispatchKeyEvent('C');
+        defaultTab.DOM.WriteText("Hello, world!");
 
-        Thread.Sleep(1000);
-        foreach (Tab tab in browser.Tabs) {await browser.CloseTab(tab.Id); }
     }
 }

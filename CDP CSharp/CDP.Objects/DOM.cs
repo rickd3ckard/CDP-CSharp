@@ -197,8 +197,8 @@ namespace CDP.Objects
             };
 
             this.WebSocket.OnMessage += hander;
-            this.WebSocket.Send(new InputDispatchKeyEventCommand(pressCommandId, "keyDown", Key).ToString());
-            this.WebSocket.Send(new InputDispatchKeyEventCommand(releaseCommandId, "keyUp", Key).ToString());
+            this.WebSocket.Send(new InputDispatchKeyEventCommand(pressCommandId, KeyEventTypeEnum.keyDown, Key).ToString());
+            this.WebSocket.Send(new InputDispatchKeyEventCommand(releaseCommandId, KeyEventTypeEnum.keyUp, Key).ToString());
 
             while (pressCommandCompleted == false || releaseCommandCompleted == false)
             {
@@ -207,6 +207,14 @@ namespace CDP.Objects
             }
 
             this.WebSocket.OnMessage -= hander;
+        }
+
+        public void WriteText(string Text) // could be optimised
+        {
+            foreach (Char key in Text.ToCharArray())
+            {
+                this.DispatchKeyEvent(key);
+            }
         }
     }
 }

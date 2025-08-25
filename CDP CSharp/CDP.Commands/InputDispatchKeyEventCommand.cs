@@ -4,18 +4,19 @@
  * See: https://unlicense.org/
  */
 
+using CDP.Utils;
 using System.Text.Json;
 
 namespace CDP.Commands
 {
     public class InputDispatchKeyEventCommand
     {
-        public InputDispatchKeyEventCommand(int Id, string Type, Char Key) // typeEnum 
+        public InputDispatchKeyEventCommand(int Id, KeyEventTypeEnum KeyType, Char Key) // typeEnum 
         {
             this.Id = Id;
             this.Method = "Input.dispatchKeyEvent";
             this.Params = new Dictionary<string, object>();
-            this.Params.Add("type", Type);
+            this.Params.Add("type", KeyType.ToString());
             this.Params.Add("text", Key);
         }
 
