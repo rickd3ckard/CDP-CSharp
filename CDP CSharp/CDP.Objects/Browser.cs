@@ -22,13 +22,14 @@ namespace CDP.Objects
         {
             this.WebsocketTargets = new List<WebsocketTarget>();
             this.Tabs = new List<Tab>();
-            this.Version = new BrowserVersionMetadata();
+            this.Version = new BrowserVersionMetadata();          
         }
 
         public List<WebsocketTarget> WebsocketTargets { get; set; }
         public List<Tab> Tabs { get; set; }
         public BrowserVersionMetadata Version { get; set; }
         public bool CloseRequested { get; set; }
+        public int WindowId { get; set; }
 
         public async Task<Browser?> Start()
         {
@@ -47,6 +48,7 @@ namespace CDP.Objects
             
             await InitWebsocketTargets();
             await GetBrowserVersionMetadata();
+            this.WindowId = GetWindowForTarget(this.Tabs[0].Id);
             return this;
         }
 
@@ -106,6 +108,70 @@ namespace CDP.Objects
                 this.Tabs.Add(new Tab(this, newTabSocket.Id));
 
                 return newTab;
+            }
+        }
+
+        private int GetWindowForTarget(string WebsocketId, TimeSpan? TimeOut = null)
+        {
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+
+            int commandId = 1; int windowId = -1; bool commandCompleted = false;
+            using (var webSocket = new WebSocket("ws://localhost:9222/devtools/page/" + WebsocketId))
+            {
+                webSocket.OnMessage += (sender, e) =>
+                {
+                    CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                    if (result == null) { throw new InvalidCastException(); }
+                    if (result.Id == commandId)
+                    {
+                        windowId = result.Result.RootElement.GetProperty("windowId").GetInt32();
+                        commandCompleted = true;
+                    }
+                };
+
+                webSocket.Connect();
+                webSocket.Send(new BrowserGetWindowForTarget(commandId).ToString());
+
+                while (commandCompleted == false)
+                {
+                    if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                }
+
+                webSocket.Close();
+            }
+
+            return windowId;
+        }
+
+        public void SetWindowsBound(WindowStateEnum WindowState, TimeSpan? TimeOut = null)
+        {
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+
+            int commandId = 1; bool commandCompleted = false;
+            using (var webSocket = new WebSocket(this.Version.WebSocketDebuggerUrl)) 
+            {
+                webSocket.OnMessage += (sender, e) =>
+                {
+                    CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                    if (result == null) { throw new InvalidCastException(); }
+                    if (result.Id == commandId)
+                    {
+                        commandCompleted = true;
+                        Thread.Sleep(1000); // sleep one second to wait for window resize animation
+                   }
+                };
+
+                webSocket.Connect();
+                webSocket.Send(new BrowsetSetWindowStateCommand(commandId, this.WindowId, WindowState).ToString());
+
+                while (commandCompleted == false)
+                {
+                    if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                }
+
+                webSocket.Close();
             }
         }
 

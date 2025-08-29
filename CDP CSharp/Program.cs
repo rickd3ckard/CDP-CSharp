@@ -13,7 +13,15 @@ class Program // test environement
     {
         Browser? browser = await new Browser().Start();
         if (browser == null) { return; }
-    
+
+
+        browser.SetWindowsBound(WindowStateEnum.maximized);
+        browser.SetWindowsBound(WindowStateEnum.normal);
+        browser.SetWindowsBound(WindowStateEnum.maximized);
+        browser.SetWindowsBound(WindowStateEnum.minimized);
+        browser.SetWindowsBound(WindowStateEnum.normal);
+        browser.SetWindowsBound(WindowStateEnum.maximized);
+
         Tab defaultTab = browser.Tabs[0];
         
         defaultTab.NavigateTo(@"https://www.maisonsmoches.be/contact/");
