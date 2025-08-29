@@ -6,7 +6,6 @@
 
 using CDP.Objects;
 using CDP.Utils;
-using System.Text.Json;
 
 class Program // test environement
 {
@@ -22,15 +21,21 @@ class Program // test environement
         defaultTab.NavigateTo(@"https://www.maisonsmoches.be/contact/");
         defaultTab.DOM.GetDocument(-1, true);
        
-        int nodeId = defaultTab.DOM.QuerySelector(1, "input[class=\"wpcf7-form-control wpcf7-text wpcf7-validates-as-required\"]", TimeSpan.FromSeconds(10));
+        int nodeId = defaultTab.DOM.QuerySelector(1, "a[href=\"https://www.maisonsmoches.be/vie-privee/\"]", TimeSpan.FromSeconds(10));
         defaultTab.DOM.ScrollIntoViewIfNeeded(nodeId);
 
-        JsonDocument jsonNode = defaultTab.DOM.DescribeNode(nodeId);
-        Node? resultNode = JsonSerializer.Deserialize<Node>(jsonNode.RootElement.GetProperty("node"));
+        Node resultNode = defaultTab.DOM.DescribeNode(nodeId);
         Console.WriteLine(resultNode);
 
         BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
         defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
+
+        Thread.Sleep(2000);
+
+        defaultTab.DOM.GetDocument(-1, true);
+        nodeId = defaultTab.DOM.QuerySelector(1, "h1[class=\"big-title big-title--tertiary lazyScroll lazyScrollView\"]");
+        resultNode = defaultTab.DOM.DescribeNode(nodeId);
+        Console.WriteLine(resultNode);
 
         defaultTab.DOM.WriteText("Hello, world!");
         browser.Close();

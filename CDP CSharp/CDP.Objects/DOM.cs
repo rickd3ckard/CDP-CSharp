@@ -9,7 +9,6 @@ using System.Text.Json;
 using WebSocketSharp;
 using CDP.Commands;
 using CDP.Utils;
-using System.Threading;
 
 namespace CDP.Objects
 {
@@ -209,18 +208,22 @@ namespace CDP.Objects
             this.WebSocket.OnMessage -= hander;
         }
 
-        public JsonDocument DescribeNode(int NodeId, int Depth = -1, bool Piece = false, TimeSpan? TimeOut = null)
+        public Node DescribeNode(int NodeId, int Depth = -1, bool Piece = false, TimeSpan? TimeOut = null)
         {
             if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
             Stopwatch stopWatch = Stopwatch.StartNew();
 
-            bool commandCompleted = false; int commandId = 1; JsonDocument nodeDescription = JsonDocument.Parse("{}");
+            bool commandCompleted = false; int commandId = 1; Node? nodeDescription = new Node();
             EventHandler<MessageEventArgs> hander = (sender, e) =>
             {
                 CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
                 if (result == null) { throw new InvalidCastException(); }
 
-                if (result.Id == commandId) { commandCompleted = true; nodeDescription = result.Result; }
+                if (result.Id == commandId) { 
+                    commandCompleted = true;
+                    JsonElement nodeElement = result.Result.RootElement.GetProperty("node");
+                    nodeDescription = JsonSerializer.Deserialize<Node>(nodeElement.GetRawText());
+                }
             };
 
             this.WebSocket.OnMessage += hander;
@@ -243,7 +246,5 @@ namespace CDP.Objects
                 this.DispatchKeyEvent(key);
             }
         }
-
- 
     }
 }

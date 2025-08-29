@@ -98,6 +98,16 @@ namespace CDP.Objects
         //public Node ImportedDocument { get; set; }
         //public BackendNode[] DistributedNodes { get; set; }
 
+        public string? GetAttributeValue(string Attribute)
+        {
+            if (this.Attributes == null) { return null; }
+            int attributeIndex = Array.IndexOf(this.Attributes, Attribute);
+            if (attributeIndex == -1) { return null; }
+            if (attributeIndex + 2 > this.Attributes.Length) { return null; }
+
+            return this.Attributes[attributeIndex + 1];
+        }
+
         public override string ToString()
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
