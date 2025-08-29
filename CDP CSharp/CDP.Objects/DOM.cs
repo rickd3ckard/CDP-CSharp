@@ -9,6 +9,7 @@ using System.Text.Json;
 using WebSocketSharp;
 using CDP.Commands;
 using CDP.Utils;
+using System.Threading;
 
 namespace CDP.Objects
 {
@@ -208,6 +209,33 @@ namespace CDP.Objects
             this.WebSocket.OnMessage -= hander;
         }
 
+        public JsonDocument DescribeNode(int NodeId, int Depth = -1, bool Piece = false, TimeSpan? TimeOut = null)
+        {
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+
+            bool commandCompleted = false; int commandId = 1; JsonDocument nodeDescription = JsonDocument.Parse("{}");
+            EventHandler<MessageEventArgs> hander = (sender, e) =>
+            {
+                CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                if (result == null) { throw new InvalidCastException(); }
+
+                if (result.Id == commandId) { commandCompleted = true; nodeDescription = result.Result; }
+            };
+
+            this.WebSocket.OnMessage += hander;
+            this.WebSocket.Send(new DOMDescribeNodeCommand(commandId, NodeId).ToString());
+
+            while (commandCompleted == false)
+            {
+                if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                Thread.Sleep(100);
+            }
+
+            this.WebSocket.OnMessage -= hander;
+            return nodeDescription;
+        }
+
         public void WriteText(string Text) // could be optimised
         {
             foreach (Char key in Text.ToCharArray())
@@ -215,5 +243,7 @@ namespace CDP.Objects
                 this.DispatchKeyEvent(key);
             }
         }
+
+ 
     }
 }

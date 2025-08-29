@@ -136,6 +136,7 @@ namespace CDP.Objects
                 while (commandCompleted == false)
                 {
                     if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                    Thread.Sleep(100);
                 }
 
                 webSocket.Close();
@@ -169,6 +170,7 @@ namespace CDP.Objects
                 while (commandCompleted == false)
                 {
                     if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                    Thread.Sleep(100);
                 }
 
                 webSocket.Close();
