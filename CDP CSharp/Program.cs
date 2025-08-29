@@ -6,7 +6,7 @@
 
 using CDP.Objects;
 using CDP.Utils;
-using System.Dynamic;
+using System.Text.Json;
 
 class Program // test environement
 {
@@ -17,7 +17,6 @@ class Program // test environement
 
         browser.SetWindowsBound(WindowStateEnum.maximized);
 
-
         Tab defaultTab = browser.Tabs[0];
         
         defaultTab.NavigateTo(@"https://www.maisonsmoches.be/contact/");
@@ -26,11 +25,12 @@ class Program // test environement
         int nodeId = defaultTab.DOM.QuerySelector(1, "input[class=\"wpcf7-form-control wpcf7-text wpcf7-validates-as-required\"]", TimeSpan.FromSeconds(10));
         defaultTab.DOM.ScrollIntoViewIfNeeded(nodeId);
 
-        Console.WriteLine(defaultTab.DOM.DescribeNode(nodeId).RootElement.GetRawText());
+        JsonDocument jsonNode = defaultTab.DOM.DescribeNode(nodeId);
+        Node? resultNode = JsonSerializer.Deserialize<Node>(jsonNode.RootElement.GetProperty("node"));
+        Console.WriteLine(resultNode);
 
         BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
         defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
-
 
         defaultTab.DOM.WriteText("Hello, world!");
         browser.Close();
