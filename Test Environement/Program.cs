@@ -6,6 +6,7 @@
 
 using CDP.Objects;
 using CDP.Utils;
+using System.Text.Json;
 
 class Program // test environement
 {
@@ -15,17 +16,13 @@ class Program // test environement
         if (browser == null) { throw new InvalidOperationException(); }
 
         await browser.SetWindowsBound(WindowStateEnum.maximized);
-        await browser.SetWindowsBound(WindowStateEnum.normal);
-        await browser.SetWindowsBound(WindowStateEnum.maximized);
-        await browser.SetWindowsBound(WindowStateEnum.normal);
 
-        //Tab defaultTab = browser.Tabs[0];
+        Tab defaultTab = browser.Tabs[0];
 
-        //defaultTab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1");
-        //defaultTab.DOM.GetDocument(1, false);
+        await defaultTab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1");
+        //defaultTab.DOM.GetDocument(-1, true);
 
         //int nodeId = defaultTab.DOM.QuerySelector(1, "button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
-        //Console.WriteLine(nodeId);
 
         //if (nodeId != 0)
         //{
