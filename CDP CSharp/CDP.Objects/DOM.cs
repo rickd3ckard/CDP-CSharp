@@ -56,6 +56,7 @@ namespace CDP.Objects
 
             this.WebSocket.OnMessage += handler;
             this.WebSocket.Send(new DOMGetDocumentCommand(commandId, depth, pierce).ToString());
+
             while (DOMNodeRetrieved == false)
             {
                 if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
@@ -87,6 +88,7 @@ namespace CDP.Objects
 
             this.WebSocket.OnMessage += handler;
             this.WebSocket.Send(new DOMQuerySelectorCommad(querSelectorCommandId, NodeId, Selector).ToString());
+            
             while (!DOMQuerySelectorCompleted)
             {
                 if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
