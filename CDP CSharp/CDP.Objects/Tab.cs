@@ -21,8 +21,6 @@ namespace CDP.Objects
             this.Id = Id;
             this.DOM = new DOM(this, Id);
             this.LayoutViewport = Task.Run(() => GetLayoutMetrics()).Result;
-
-            Console.WriteLine(this.LayoutViewport);
         }
 
         public Browser Parent { get; }

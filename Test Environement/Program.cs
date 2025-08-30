@@ -6,7 +6,6 @@
 
 using CDP.Objects;
 using CDP.Utils;
-using System.Text.Json;
 
 class Program // test environement
 {
@@ -20,31 +19,31 @@ class Program // test environement
         Tab defaultTab = browser.Tabs[0];
 
         await defaultTab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1");
-        //defaultTab.DOM.GetDocument(-1, true);
+        await defaultTab.DOM.GetDocument(-1, false, TimeSpan.FromSeconds(50));
 
-        //int nodeId = defaultTab.DOM.QuerySelector(1, "button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
+        int nodeId = await defaultTab.DOM.QuerySelector(1, "button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
 
-        //if (nodeId != 0)
-        //{
-        //    BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
-        //    defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
-        //}
+        if (nodeId != 0)
+        {
+            BoxModel box = await defaultTab.DOM.GetBoxModel(nodeId);
+            await defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
+        }
 
-        //Thread.Sleep(1000); // wait to be fully loaded
+        Thread.Sleep(1000); // wait to be fully loaded
 
-        //int[] nodeIds = defaultTab.DOM.QuerySelectorAll(1, "a[class=\"stretched-link outlined-link-hover\"]");
-        //Console.WriteLine(nodeIds.Length);
+        int[] nodeIds = await defaultTab.DOM.QuerySelectorAll(1, "a[class=\"stretched-link outlined-link-hover\"]");
+        Console.WriteLine(nodeIds.Length);
 
-        //foreach (int id in nodeIds)
-        //{
-        //    Node resultNode = defaultTab.DOM.DescribeNode(id);
-        //    string? href = resultNode.GetAttributeValue("href");
-        //    if (href == null) { throw new InvalidOperationException(); }
+        foreach (int id in nodeIds)
+        {
+            Node resultNode = await defaultTab.DOM.DescribeNode(id);
+            string? href = resultNode.GetAttributeValue("href");
+            if (href == null) { throw new InvalidOperationException(); }
 
-        //    await browser.OpenTab(href);
-        //}
+            await browser.OpenTab(href);
+        }
 
-        //Thread.Sleep(10000);
+        Thread.Sleep(10000);
 
         await browser.Close();
     }

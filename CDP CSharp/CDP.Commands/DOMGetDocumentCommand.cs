@@ -4,6 +4,7 @@
  * See: https://unlicense.org/
  */
 
+using System.Text;
 using System.Text.Json;
 
 namespace CDP.Commands
@@ -30,6 +31,14 @@ namespace CDP.Commands
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 
             return JsonSerializer.Serialize(this, options);
+        }
+
+        public ArraySegment<byte> Encode()
+        {
+            string closeCommand = this.ToString();
+            byte[] encodedCommand = Encoding.UTF8.GetBytes(closeCommand);
+            ArraySegment<byte> buffer = new ArraySegment<byte>(encodedCommand);
+            return buffer;
         }
     }
 }

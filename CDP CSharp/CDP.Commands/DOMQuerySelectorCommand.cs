@@ -4,13 +4,14 @@
  * See: https://unlicense.org/
  */
 
+using System.Text;
 using System.Text.Json;
 
 namespace CDP.Commands
 {
-    public class DOMQuerySelectorCommad
+    public class DOMQuerySelectorCommand
     {
-        public DOMQuerySelectorCommad(int Id, int NodeId, string Selector)
+        public DOMQuerySelectorCommand(int Id, int NodeId, string Selector)
         {
             this.Id = Id;
             this.Method = "DOM.querySelector";
@@ -30,6 +31,14 @@ namespace CDP.Commands
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 
             return JsonSerializer.Serialize(this, options);
+        }
+
+        public ArraySegment<byte> Encode()
+        {
+            string closeCommand = this.ToString();
+            byte[] encodedCommand = Encoding.UTF8.GetBytes(closeCommand);
+            ArraySegment<byte> buffer = new ArraySegment<byte>(encodedCommand);
+            return buffer;
         }
     }
 }
