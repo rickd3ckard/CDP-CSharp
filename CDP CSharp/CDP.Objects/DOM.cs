@@ -99,6 +99,39 @@ namespace CDP.Objects
             return resultNodeId;
         }
 
+        public int[] QuerySelectorAll(int NodeId, string Selector, TimeSpan? TimeOut = null)
+        {
+            if (_document == null) { throw new NullReferenceException(); }
+
+            if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
+            Stopwatch stopWatch = Stopwatch.StartNew();
+
+            int[]? resultNodeIds = [];
+            bool DOMQuerySelectorCompleted = false; int querSelectorCommandId = 1;
+
+            EventHandler<MessageEventArgs> handler = (sender, e) => {
+                CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
+                if (result == null) { throw new InvalidCastException(); }
+                if (result.Id != querSelectorCommandId) { return; }
+
+                DOMQuerySelectorCompleted = true;
+                string rawNodeIds = result.Result.RootElement.GetProperty("nodeIds").GetRawText();
+                resultNodeIds = JsonSerializer.Deserialize<int[]>(rawNodeIds);
+            };
+
+            this.WebSocket.OnMessage += handler;
+            this.WebSocket.Send(new DOMQuerySelectorAllCommad(querSelectorCommandId, NodeId, Selector).ToString());
+
+            while (!DOMQuerySelectorCompleted)
+            {
+                if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                Thread.Sleep(100);
+            }
+
+            this.WebSocket.OnMessage -= handler;
+            return resultNodeIds;
+        }
+
         public BoxModel GetBoxModel(int NodeId, TimeSpan? TimeOut = null)
         {
             if (_document == null) { throw new NullReferenceException(); }

@@ -34,7 +34,7 @@ namespace CDP.Objects
         public async Task<Browser?> Start()
         {
             string chromePath = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"; // input 
-            string arguments = "--remote-debugging-port=9222 --no-sandbox --user-data-dir=\"C:\\temp\\chrome-debug\""; //  --headless 
+            string arguments = "--remote-debugging-port=9222  --user-data-dir=\"C:\\temp\\chrome-debug\""; // --headless 
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
