@@ -6,7 +6,8 @@
 
 using System.Diagnostics;
 using System.Text.Json;
-using WebSocketSharp;
+using System.Net.WebSockets;
+using System.Text;
 using CDP.Utils;
 using CDP.Commands;
 
@@ -48,7 +49,7 @@ namespace CDP.Objects
             
             await InitWebsocketTargets();
             await GetBrowserVersionMetadata();
-            this.WindowId = GetWindowForTarget(this.Tabs[0].Id);
+            this.WindowId = await GetWindowForTarget(this.Tabs[0].Id);
             return this;
         }
 
@@ -111,80 +112,112 @@ namespace CDP.Objects
             }
         }
 
-        private int GetWindowForTarget(string WebsocketId, TimeSpan? TimeOut = null)
+        private async Task<int> GetWindowForTarget(string WebsocketId, TimeSpan? TimeOut = null)
         {
+            if (this.Version.WebSocketDebuggerUrl == null) { throw new InvalidOperationException(); }
             if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
             Stopwatch stopWatch = Stopwatch.StartNew();
 
-            int commandId = 1; int windowId = -1; bool commandCompleted = false;
-            using (var webSocket = new WebSocket("ws://localhost:9222/devtools/page/" + WebsocketId))
+            int commandId = 1; int windowId = -1;
+            using (ClientWebSocket webSocket = new ClientWebSocket())
             {
-                webSocket.OnMessage += (sender, e) =>
+                Uri socketUri = new Uri("ws://localhost:9222/devtools/page/" + WebsocketId);
+                await webSocket.ConnectAsync(socketUri, CancellationToken.None);
+                await webSocket.SendAsync(new BrowserGetWindowForTarget(commandId).Encode(),
+                    WebSocketMessageType.Text, true, CancellationToken.None);
+
+                byte[] responseBuffer = new byte[1024];
+                StringBuilder responseBuilder = new StringBuilder();
+
+                while (true)
                 {
-                    CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
-                    if (result == null) { throw new InvalidCastException(); }
-                    if (result.Id == commandId)
+                    if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
+                    WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
+                    if (result.MessageType == WebSocketMessageType.Close)
                     {
-                        windowId = result.Result.RootElement.GetProperty("windowId").GetInt32();
-                        commandCompleted = true;
+                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Done", CancellationToken.None);
+                        break;
                     }
-                };
 
-                webSocket.Connect();
-                webSocket.Send(new BrowserGetWindowForTarget(commandId).ToString());
+                    responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
+                    Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                    if (result.EndOfMessage == true)
+                    {
+                        string response = responseBuilder.ToString();
+                        responseBuilder.Clear();
 
-                while (commandCompleted == false)
-                {
-                    if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
-                    Thread.Sleep(100);
+                        CommandResult? commandResult = JsonSerializer.Deserialize<CommandResult>(response);
+                        if (commandResult == null) { throw new InvalidCastException(); }
+                        if (commandResult.Id == commandId)
+                        {
+                            windowId = commandResult.Result.RootElement.GetProperty("windowId").GetInt32();
+                            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                            break;
+                        }
+                    }
                 }
 
-                webSocket.Close();
+                return windowId;
             }
-
-            return windowId;
         }
 
-        public void SetWindowsBound(WindowStateEnum WindowState, TimeSpan? TimeOut = null)
+        public async Task SetWindowsBound(WindowStateEnum WindowState, TimeSpan? TimeOut = null)
         {
+            if (this.Version.WebSocketDebuggerUrl == null) { throw new InvalidOperationException(); }
             if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
             Stopwatch stopWatch = Stopwatch.StartNew();
 
-            int commandId = 1; bool commandCompleted = false;
-            using (var webSocket = new WebSocket(this.Version.WebSocketDebuggerUrl)) 
+            int commandId = 1;      
+            using (ClientWebSocket webSocket = new ClientWebSocket())
             {
-                webSocket.OnMessage += (sender, e) =>
-                {
-                    CommandResult? result = JsonSerializer.Deserialize<CommandResult>(e.Data);
-                    if (result == null) { throw new InvalidCastException(); }
-                    if (result.Id == commandId)
-                    {
-                        commandCompleted = true;
-                        Thread.Sleep(1000); // sleep one second to wait for window resize animation
-                   }
-                };
+                Uri socketUri = new Uri(this.Version.WebSocketDebuggerUrl);
+                await webSocket.ConnectAsync(socketUri, CancellationToken.None);
+                await webSocket.SendAsync(new BrowsetSetWindowStateCommand(commandId, this.WindowId, WindowState).Encode(), 
+                    WebSocketMessageType.Text, true, CancellationToken.None);
 
-                webSocket.Connect();
-                webSocket.Send(new BrowsetSetWindowStateCommand(commandId, this.WindowId, WindowState).ToString());
+                byte[] responseBuffer = new byte[1024];
+                StringBuilder responseBuilder = new StringBuilder();
 
-                while (commandCompleted == false)
+                while (true)
                 {
                     if (stopWatch.Elapsed > TimeOut) { throw new TimeoutException(); }
-                    Thread.Sleep(100);
-                }
+                    WebSocketReceiveResult result = await webSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
+                    if (result.MessageType == WebSocketMessageType.Close) { 
+                        await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Done", CancellationToken.None);
+                        break;
+                    }
 
-                webSocket.Close();
+                    responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
+                    Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                    if (result.EndOfMessage == true)
+                    {
+                        string response = responseBuilder.ToString();
+                        responseBuilder.Clear();
+
+                        CommandResult? commandResult = JsonSerializer.Deserialize<CommandResult>(response);
+                        if (commandResult == null) { throw new InvalidCastException(); }
+                        if (commandResult.Id == commandId)
+                        {
+                            await Task.Delay(1000);
+                            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                            break;
+                        }
+                    }
+                }
             }
         }
-
-        public void Close()
+        
+        public async Task Close()
         {
+            if (this.Version.WebSocketDebuggerUrl == null) { throw new InvalidOperationException(); }       
             this.CloseRequested = true;
-            using (WebSocket socket = new WebSocket(this.Version.WebSocketDebuggerUrl))
+         
+            using (ClientWebSocket webSocket = new ClientWebSocket())
             {
-                socket.Connect();
-                socket.Send(new BrowserCloseCommand(1).ToString());
-                socket.Close();
+                Uri socketUri = new Uri(this.Version.WebSocketDebuggerUrl);
+                await webSocket.ConnectAsync(socketUri, CancellationToken.None);
+                await webSocket.SendAsync(new BrowserCloseCommand(1).Encode(), WebSocketMessageType.Text, true, CancellationToken.None);
+                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
             }
         }
     }

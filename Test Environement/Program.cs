@@ -14,39 +14,41 @@ class Program // test environement
         Browser? browser = await new Browser().Start();
         if (browser == null) { throw new InvalidOperationException(); }
 
-        browser.SetWindowsBound(WindowStateEnum.maximized);
+        await browser.SetWindowsBound(WindowStateEnum.maximized);
+        await browser.SetWindowsBound(WindowStateEnum.normal);
+        await browser.SetWindowsBound(WindowStateEnum.maximized);
+        await browser.SetWindowsBound(WindowStateEnum.normal);
 
-        Tab defaultTab = browser.Tabs[0];
+        //Tab defaultTab = browser.Tabs[0];
 
-        defaultTab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1");
-        defaultTab.DOM.GetDocument(1, false);
+        //defaultTab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1");
+        //defaultTab.DOM.GetDocument(1, false);
 
-        int nodeId = defaultTab.DOM.QuerySelector(1, "button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
-        Console.WriteLine(nodeId);
+        //int nodeId = defaultTab.DOM.QuerySelector(1, "button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
+        //Console.WriteLine(nodeId);
 
-        if (nodeId != 0)
-        {
-            BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
-            defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
-        }
+        //if (nodeId != 0)
+        //{
+        //    BoxModel box = defaultTab.DOM.GetBoxModel(nodeId);
+        //    defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
+        //}
 
-        Thread.Sleep(1000); // wait to be fully loaded
+        //Thread.Sleep(1000); // wait to be fully loaded
 
-        int[] nodeIds = defaultTab.DOM.QuerySelectorAll(1, "a[class=\"stretched-link outlined-link-hover\"]");
-        Console.WriteLine(nodeIds.Length);
-        
-        foreach (int id in nodeIds)
-        {
-            Node resultNode = defaultTab.DOM.DescribeNode(id);
-            string? href = resultNode.GetAttributeValue("href");
-            if (href == null) { throw new InvalidOperationException(); }
+        //int[] nodeIds = defaultTab.DOM.QuerySelectorAll(1, "a[class=\"stretched-link outlined-link-hover\"]");
+        //Console.WriteLine(nodeIds.Length);
 
-            await browser.OpenTab(href);
-        }
+        //foreach (int id in nodeIds)
+        //{
+        //    Node resultNode = defaultTab.DOM.DescribeNode(id);
+        //    string? href = resultNode.GetAttributeValue("href");
+        //    if (href == null) { throw new InvalidOperationException(); }
 
-        Thread.Sleep(10000);
+        //    await browser.OpenTab(href);
+        //}
 
-        browser.Close();
+        //Thread.Sleep(10000);
+
+        await browser.Close();
     }
 }
-

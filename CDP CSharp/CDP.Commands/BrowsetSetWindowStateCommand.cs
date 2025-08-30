@@ -7,6 +7,7 @@
 using CDP.Utils;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text;
 
 namespace CDP.Commands
 {
@@ -33,6 +34,14 @@ namespace CDP.Commands
             options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 
             return JsonSerializer.Serialize(this, options);
+        }
+
+        public ArraySegment<byte> Encode()
+        {
+            string closeCommand = this.ToString();
+            byte[] encodedCommand = Encoding.UTF8.GetBytes(closeCommand);
+            ArraySegment<byte> buffer = new ArraySegment<byte>(encodedCommand);
+            return buffer;
         }
     }
 }
