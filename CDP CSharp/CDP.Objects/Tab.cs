@@ -143,21 +143,25 @@ namespace CDP.Objects
         }
 
         #region Facade methods
-        public async Task<Node?> SelectNode(string Selector, Node? Node = null)
+        public async Task<Node?> SelectNode(string Selector, int NodeId = 1)
         {
+            if (NodeId < 1) { throw new InvalidOperationException(); }
             if (this.DOM.Document == null) { throw new InvalidOperationException(); }
 
-            int nodeId = await this.DOM.QuerySelector(1, Selector);
+            int consideredNodeId = NodeId > 1 ? NodeId : 1;
+            int nodeId = await this.DOM.QuerySelector(consideredNodeId, Selector);
             if (nodeId == 0) { return null; }
 
             return await this.DOM.DescribeNode(nodeId);
         }
 
-        public async Task<Node[]?> SelectNodes(string Selector, Node? Node = null)
+        public async Task<Node[]?> SelectNodes(string Selector, int NodeId = 1)
         {
+            if (NodeId < 1) { throw new InvalidOperationException(); }
             if (this.DOM.Document == null) { throw new InvalidOperationException(); }
 
-            int[] nodeIds = await this.DOM.QuerySelectorAll(1, Selector);
+            int consideredNodeId = NodeId > 1 ? NodeId : 1;
+            int[] nodeIds = await this.DOM.QuerySelectorAll(consideredNodeId, Selector);
             if (nodeIds.Length == 0) { return null; }
 
             List<Node> nodeList = new List<Node>();

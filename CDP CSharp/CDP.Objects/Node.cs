@@ -150,6 +150,36 @@ namespace CDP.Objects
             if (textNode == null) { return null; }
             return textNode.NodeValue;
         }
+
+        public async Task<Node?> SelectNode(string Selector)
+        {
+            if (this.DOM == null) { throw new NullReferenceException(); }
+            if (this.DOM.Document == null) { throw new NullReferenceException(); }
+            if (this.NodeId == null) { throw new NullReferenceException(); }
+
+            int nodeId = await this.DOM.QuerySelector(this.NodeId.Value, Selector);
+            if (nodeId == 0) { return null; }
+
+            return await this.DOM.DescribeNode(nodeId);
+        }
+
+        public async Task<Node[]?> SelectNodes(string Selector)
+        {
+            if (this.DOM == null) { throw new NullReferenceException(); }
+            if (this.DOM.Document == null) { throw new NullReferenceException(); }
+            if (this.NodeId == null) { throw new NullReferenceException(); }
+
+            int[] nodeIds = await this.DOM.QuerySelectorAll(this.NodeId.Value, Selector);
+            if (nodeIds.Length == 0) { return null; }
+
+            List<Node> nodeList = new List<Node>();
+            foreach (int nodeId in nodeIds)
+            {
+                nodeList.Add(await this.DOM.DescribeNode(nodeId));
+            }
+
+            return nodeList.ToArray();
+        }
         #endregion
     }
 }

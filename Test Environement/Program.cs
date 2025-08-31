@@ -36,12 +36,26 @@ class Program // test environement
                 taskList.Add(Task.Run(async () => {
                     Tab agentTab = await browser.OpenTab(href);
                     await agentTab.DOM.GetDocument(1, true);
+  
                     Node? agentName = await agentTab.SelectNode("h2[class=\"fw-bold fs-2xl mb-0\"]");
                     if (agentName != null) { names.Add(agentName.GetText() ?? string.Empty); }
-                    await agentTab.Close(); await tab.Focus();
+ 
+                    Node? ipiNumber = await agentTab.SelectNode("div[class=\"rounded-label mt-1 tracking-wider d-flex align-items-center fit-content\"]");
+                    if (ipiNumber != null) { names.Add(ipiNumber.GetText()?.Trim() ?? string.Empty); }
+
+                    Node? teaserContainer = await agentTab.SelectNode("div[class=\"col-md-6\"]");
+                    if (teaserContainer == null) {return; }
+
+                    Node[]? smallLinks = await teaserContainer.SelectNodes("a[class=\"small-link\"]");
+                    smallLinks?.ToList().ForEach(Console.WriteLine);
+
+                    Node[]? svgs = await teaserContainer.SelectNodes("svg");
+                    svgs?.ToList().ForEach(Console.WriteLine);
+
+                    await agentTab.Close();
                 }));
             }
-            Thread.Sleep(100);
+            break;
         }
 
         await Task.WhenAll(taskList);
