@@ -7,59 +7,62 @@
 using CDP.Objects;
 using CDP.Utils;
 
-class Program // test environement
+Browser? browser = await new Browser().Start();
+if (browser == null) { throw new InvalidOperationException(); }
+await browser.SetWindowsBound(WindowStateEnum.maximized);
+
+Tab tab = browser.Tabs[0];
+await tab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1"); Thread.Sleep(2000); // is executing some javascript
+await tab.DOM.GetDocument(1, true, TimeSpan.FromSeconds(50));
+
+Node? declineCookieButton = await tab.SelectNode("button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
+if (declineCookieButton != null) { await declineCookieButton.Click(MouseButtonEnum.left, true); Thread.Sleep(500); }
+
+Node[]? agentCards = await tab.SelectNodes("a[class=\"stretched-link outlined-link-hover\"]");
+if (agentCards == null) { return; }
+
+List<Task> taskList = new List<Task>();
+List<string> names = new List<string>();
+
+foreach (Node agentCard in agentCards)
 {
-    static async Task Main()
+    string? href = agentCard.GetAttributeValue("href");
+    if (href != null)
     {
-        Browser? browser = await new Browser().Start();
-        if (browser == null) { throw new InvalidOperationException(); }
-        await browser.SetWindowsBound(WindowStateEnum.maximized);
-
-        Tab tab = browser.Tabs[0];
-        await tab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1"); Thread.Sleep(2000); // is executing some javascript
-        await tab.DOM.GetDocument(1, true, TimeSpan.FromSeconds(50));
-
-        Node? declineCookieButton = await tab.SelectNode("button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
-        if (declineCookieButton != null) { await declineCookieButton.Click(MouseButtonEnum.left, true); Thread.Sleep(500); }
-
-        Node[]? agentCards = await tab.SelectNodes("a[class=\"stretched-link outlined-link-hover\"]");
-        if (agentCards == null) { return; }
-
-        List<Task> taskList = new List<Task>();
-        List<string> names = new List<string>();
-
-        foreach (Node agentCard in agentCards)
+        taskList.Add(Task.Run(async () =>
         {
-            string? href = agentCard.GetAttributeValue("href");
-            if (href != null)
+            Tab agentTab = await browser.OpenTab(href);
+            await agentTab.DOM.GetDocument(1, true);
+
+            Node? agentName = await agentTab.SelectNode("h2[class=\"fw-bold fs-2xl mb-0\"]");
+            if (agentName != null) { names.Add(agentName.GetText() ?? string.Empty); }
+
+            Node? ipiNumber = await agentTab.SelectNode("div[class=\"rounded-label mt-1 tracking-wider d-flex align-items-center fit-content\"]");
+            if (ipiNumber != null) { names.Add(ipiNumber.GetText()?.Trim() ?? string.Empty); }
+
+            Node? teaserContainer = await agentTab.SelectNode("div[class=\"col-md-6\"]");
+            if (teaserContainer == null) { return; }
+
+            Node[]? smallLinks = await teaserContainer.SelectNodes("a[class=\"small-link\"]");
+            foreach (Node linkNode in smallLinks)
             {
-                taskList.Add(Task.Run(async () => {
-                    Tab agentTab = await browser.OpenTab(href);
-                    await agentTab.DOM.GetDocument(1, true);
-  
-                    Node? agentName = await agentTab.SelectNode("h2[class=\"fw-bold fs-2xl mb-0\"]");
-                    if (agentName != null) { names.Add(agentName.GetText() ?? string.Empty); }
- 
-                    Node? ipiNumber = await agentTab.SelectNode("div[class=\"rounded-label mt-1 tracking-wider d-flex align-items-center fit-content\"]");
-                    if (ipiNumber != null) { names.Add(ipiNumber.GetText()?.Trim() ?? string.Empty); }
-
-                    Node? teaserContainer = await agentTab.SelectNode("div[class=\"col-md-6\"]");
-                    if (teaserContainer == null) {return; }
-
-                    Node[]? smallLinks = await teaserContainer.SelectNodes("a[class=\"small-link\"]");
-                    smallLinks?.ToList().ForEach(Console.WriteLine);
-
-                    Node[]? svgs = await teaserContainer.SelectNodes("svg");
-                    svgs?.ToList().ForEach(Console.WriteLine);
-
-                    await agentTab.Close();
-                }));
+                BoxModel box = await linkNode.GetBoxModel();
+                Console.WriteLine(box.Center);
             }
-            break;
-        }
 
-        await Task.WhenAll(taskList);
-        names.ForEach(Console.WriteLine);
-        await browser.Close(); return;
+            Node[]? svgs = await teaserContainer.SelectNodes("svg");
+            foreach (Node svg in svgs)
+            {
+                BoxModel box = await svg.GetBoxModel();
+                Console.WriteLine(box.Center);
+            }
+
+            await agentTab.Close();
+        }));
     }
+    break;
 }
+
+await Task.WhenAll(taskList);
+names.ForEach(Console.WriteLine);
+await browser.Close(); return;

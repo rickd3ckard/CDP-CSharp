@@ -5,7 +5,6 @@
  */
 
 using CDP.Utils;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -120,7 +119,7 @@ namespace CDP.Objects
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 
-            return JsonSerializer.Serialize(this, options); 
+            return JsonSerializer.Serialize(this, options);
         }
 
         #region Facade Methodes 
@@ -130,8 +129,8 @@ namespace CDP.Objects
             if (this.NodeId == 0 || this.NodeId == null) { throw new NullReferenceException(); }
 
             if (ScrollIntoViewIfNeed) { await this.DOM.ScrollIntoViewIfNeeded(this.NodeId.Value); }
-            
-            BoxModel box = await this.DOM.GetBoxModel(this.NodeId.Value);         
+
+            BoxModel box = await this.DOM.GetBoxModel(this.NodeId.Value);
             await this.DOM.DispatchMouseEvent(box.Center, MouseButton);
         }
 
@@ -179,6 +178,14 @@ namespace CDP.Objects
             }
 
             return nodeList.ToArray();
+        }
+
+        public async Task<BoxModel> GetBoxModel()
+        {
+            if (this.DOM == null) { throw new NullReferenceException(); }
+            if (this.NodeId == null) { throw new NullReferenceException(); }
+
+            return await this.DOM.GetBoxModel(this.NodeId.Value);
         }
         #endregion
     }
