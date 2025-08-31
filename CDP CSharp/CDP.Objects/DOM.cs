@@ -49,7 +49,7 @@ namespace CDP.Objects
                 WebSocketReceiveResult result = await this.WebSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
 
                 responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                //Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                 if (result.EndOfMessage == true)
                 {
                     string response = responseBuilder.ToString();
@@ -83,7 +83,7 @@ namespace CDP.Objects
                 WebSocketReceiveResult result = await this.WebSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
 
                 responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                 if (result.EndOfMessage == true)
                 {
                     string response = responseBuilder.ToString();
@@ -116,7 +116,7 @@ namespace CDP.Objects
                 WebSocketReceiveResult result = await this.WebSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
 
                 responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                 if (result.EndOfMessage == true)
                 {
                     string response = responseBuilder.ToString();
@@ -152,7 +152,7 @@ namespace CDP.Objects
                 WebSocketReceiveResult result = await this.WebSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
 
                 responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                 if (result.EndOfMessage == true)
                 {
                     string response = responseBuilder.ToString();
@@ -188,7 +188,7 @@ namespace CDP.Objects
                 WebSocketReceiveResult result = await this.WebSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
 
                 responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                 if (result.EndOfMessage == true)
                 {
                     string response = responseBuilder.ToString();
@@ -221,7 +221,7 @@ namespace CDP.Objects
                 WebSocketReceiveResult result = await this.WebSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
 
                 responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                 if (result.EndOfMessage == true)
                 {
                     string response = responseBuilder.ToString();
@@ -256,7 +256,7 @@ namespace CDP.Objects
                 WebSocketReceiveResult result = await this.WebSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
 
                 responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                 if (result.EndOfMessage == true)
                 {
                     string response = responseBuilder.ToString();
@@ -289,7 +289,7 @@ namespace CDP.Objects
                 WebSocketReceiveResult result = await this.WebSocket.ReceiveAsync(new ArraySegment<byte>(responseBuffer), CancellationToken.None);
 
                 responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                 if (result.EndOfMessage == true)
                 {
                     string response = responseBuilder.ToString();

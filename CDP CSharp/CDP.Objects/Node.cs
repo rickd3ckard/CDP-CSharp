@@ -5,6 +5,7 @@
  */
 
 using CDP.Utils;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -140,6 +141,14 @@ namespace CDP.Objects
             if (this.NodeId == 0 || this.NodeId == null) { throw new NullReferenceException(); }
 
             await this.DOM.ScrollIntoViewIfNeeded(this.NodeId.Value);
+        }
+
+        public string? GetText()
+        {
+            if (this.Children == null || this.Children.Count() <= 0) { return null; }
+            Node? textNode = this.Children.FirstOrDefault(n => n.NodeName == "#text");
+            if (textNode == null) { return null; }
+            return textNode.NodeValue;
         }
         #endregion
     }

@@ -57,7 +57,7 @@ namespace CDP.Objects
                     }
 
                     responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                    Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                    // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                     if (result.EndOfMessage == true)
                     {
                         string response = responseBuilder.ToString();
@@ -120,7 +120,7 @@ namespace CDP.Objects
                     }
 
                     responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                    Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                    // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                     if (result.EndOfMessage == true)
                     {
                         string response = responseBuilder.ToString();

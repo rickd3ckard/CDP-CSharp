@@ -35,7 +35,7 @@ namespace CDP.Objects
         public async Task<Browser?> Start()
         {
             string chromePath = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"; // input 
-            string arguments = "--remote-debugging-port=9222 --user-data-dir=\"C:\\temp\\chrome-debug\""; // --headless  
+            string arguments = "--remote-debugging-port=9222 // --headless --user-data-dir=\"C:\\temp\\chrome-debug\""; 
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -102,7 +102,7 @@ namespace CDP.Objects
             {
                 HttpResponseMessage response = await client.PutAsync($@"http://localhost:9222/json/new?{Uri.EscapeDataString(URL)}", new StringContent(string.Empty));
                 WebsocketTarget? newTabSocket = JsonSerializer.Deserialize<WebsocketTarget>(await response.Content.ReadAsStringAsync());
-                if (newTabSocket == null) { throw new Exception(); }
+                if (newTabSocket == null) { throw new InvalidCastException(); }
 
                 this.WebsocketTargets.Add(newTabSocket);
                 Tab newTab = new Tab(this, newTabSocket.Id);
@@ -140,7 +140,7 @@ namespace CDP.Objects
                     }
 
                     responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                    Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                    // Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                     if (result.EndOfMessage == true)
                     {
                         string response = responseBuilder.ToString();
@@ -188,7 +188,7 @@ namespace CDP.Objects
                     }
 
                     responseBuilder.Append(Encoding.UTF8.GetString(responseBuffer, 0, result.Count)); // remove two args?
-                    Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
+                    //Console.ForegroundColor = ConsoleColor.Yellow; Console.WriteLine(responseBuilder.ToString()); Console.ResetColor();
                     if (result.EndOfMessage == true)
                     {
                         string response = responseBuilder.ToString();

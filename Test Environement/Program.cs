@@ -13,25 +13,39 @@ class Program // test environement
     {
         Browser? browser = await new Browser().Start();
         if (browser == null) { throw new InvalidOperationException(); }
-
         await browser.SetWindowsBound(WindowStateEnum.maximized);
 
-        Tab defaultTab = browser.Tabs[0];
+        Tab tab = browser.Tabs[0];
+        await tab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1"); Thread.Sleep(2000); // is executing some javascript
+        await tab.DOM.GetDocument(1, true, TimeSpan.FromSeconds(50));
 
-        await defaultTab.NavigateTo(@"https://www.ipi.be/agent-immobilier?location=4000&page=1");
-        await defaultTab.DOM.GetDocument(-1, false, TimeSpan.FromSeconds(50));
+        Node? declineCookieButton = await tab.SelectNode("button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
+        if (declineCookieButton != null) { await declineCookieButton.Click(MouseButtonEnum.left, true); Thread.Sleep(500); }
 
-        int nodeId = await defaultTab.DOM.QuerySelector(1, "button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
+        Node[]? agentCards = await tab.SelectNodes("a[class=\"stretched-link outlined-link-hover\"]");
+        if (agentCards == null) { return; }
 
-        if (nodeId != 0)
+        List<Task> taskList = new List<Task>();
+        List<string> names = new List<string>();
+
+        foreach (Node agentCard in agentCards)
         {
-            BoxModel box = await defaultTab.DOM.GetBoxModel(nodeId);
-            await defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
+            string? href = agentCard.GetAttributeValue("href");
+            if (href != null)
+            {
+                taskList.Add(Task.Run(async () => {
+                    Tab agentTab = await browser.OpenTab(href);
+                    await agentTab.DOM.GetDocument(1, true);
+                    Node? agentName = await agentTab.SelectNode("h2[class=\"fw-bold fs-2xl mb-0\"]");
+                    if (agentName != null) { names.Add(agentName.GetText() ?? string.Empty); }
+                    await agentTab.Close(); await tab.Focus();
+                }));
+            }
+            Thread.Sleep(100);
         }
 
-        Node? searchButton = await defaultTab.SelectNode("a[href=\"https://www.ipi.be/agent-immobilier-ipi/contactez-nous\"]");
-        if (searchButton != null) {await searchButton.ScrollIntoView();}
-    
+        await Task.WhenAll(taskList);
+        names.ForEach(Console.WriteLine);
         await browser.Close(); return;
     }
 }
