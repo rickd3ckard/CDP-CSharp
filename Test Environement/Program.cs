@@ -29,6 +29,11 @@ class Program // test environement
             await defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
         }
 
+        Node? searchButton = await defaultTab.SelectNode("button[class=\"w-100 h-100 min-h-12 button js-form-submit frm-submit btn btn-primary rounded-0\"]");
+        Console.WriteLine(searchButton);
+
+        return;
+
         Thread.Sleep(1000); // wait to be fully loaded
 
         int[] nodeIds = await defaultTab.DOM.QuerySelectorAll(1, "a[class=\"stretched-link outlined-link-hover\"]");

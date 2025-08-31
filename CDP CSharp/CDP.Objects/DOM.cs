@@ -270,7 +270,7 @@ namespace CDP.Objects
             }
         }
 
-        public async Task<Node> DescribeNode(int NodeId, int Depth = -1, bool Piece = false, TimeSpan? TimeOut = null)
+        public async Task<Node> DescribeNode(int NodeId, TimeSpan? TimeOut = null)
         {
             if (_document == null) { throw new NullReferenceException(); }
             if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }

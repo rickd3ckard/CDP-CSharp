@@ -141,5 +141,15 @@ namespace CDP.Objects
                 return layout;
             }
         }
+
+        public async Task<Node?> SelectNode(string Selector, Node? Node = null)
+        {
+            if (this.DOM.Document == null) { throw new InvalidOperationException(); }
+
+            int nodeId = await this.DOM.QuerySelector(1, Selector);
+            if (nodeId == 0) { return null; }
+
+            return await this.DOM.DescribeNode(nodeId);
+        }
     }
 }
