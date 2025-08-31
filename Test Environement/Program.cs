@@ -29,33 +29,9 @@ class Program // test environement
             await defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
         }
 
-        //Node? searchButton = await defaultTab.SelectNode("button[class=\"w-100 h-100 min-h-12 button js-form-submit form-submit btn btn-primary rounded-0\"]");
-        //Console.WriteLine(searchButton);
-
-        Node[]? cards = await defaultTab.SelectNodes("a[class=\"stretched-link outlined-link-hover\"]");
-        if (cards == null) { return; }
-        foreach (Node node in cards) { Console.WriteLine(node); }
-
-        await browser.Close();
-
-        return;
-
-        Thread.Sleep(1000); // wait to be fully loaded
-
-        int[] nodeIds = await defaultTab.DOM.QuerySelectorAll(1, "a[class=\"stretched-link outlined-link-hover\"]");
-        Console.WriteLine(nodeIds.Length);
-
-        foreach (int id in nodeIds)
-        {
-            Node resultNode = await defaultTab.DOM.DescribeNode(id);
-            string? href = resultNode.GetAttributeValue("href");
-            if (href == null) { throw new InvalidOperationException(); }
-
-            await browser.OpenTab(href);
-        }
-
-        Thread.Sleep(10000);
-
-       
+        Node? searchButton = await defaultTab.SelectNode("a[href=\"https://www.ipi.be/agent-immobilier-ipi/contactez-nous\"]");
+        if (searchButton != null) {await searchButton.ScrollIntoView();}
+    
+        await browser.Close(); return;
     }
 }

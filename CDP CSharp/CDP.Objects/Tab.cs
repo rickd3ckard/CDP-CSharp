@@ -142,6 +142,7 @@ namespace CDP.Objects
             }
         }
 
+        #region Facade methods
         public async Task<Node?> SelectNode(string Selector, Node? Node = null)
         {
             if (this.DOM.Document == null) { throw new InvalidOperationException(); }
@@ -167,5 +168,6 @@ namespace CDP.Objects
 
             return nodeList.ToArray();
         }
+        #endregion
     }
 }

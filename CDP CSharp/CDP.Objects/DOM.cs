@@ -302,6 +302,7 @@ namespace CDP.Objects
                     JsonElement nodeElement = commandResult.Result.RootElement.GetProperty("node");
                     Node? nodeDescription = JsonSerializer.Deserialize<Node>(nodeElement.GetRawText());
                     if (nodeDescription == null) { throw new InvalidCastException(); }
+                    nodeDescription.DOM = this;
                     return nodeDescription;
                 }
             }

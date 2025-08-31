@@ -4,6 +4,7 @@
  * See: https://unlicense.org/
  */
 
+using CDP.Utils;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -12,6 +13,9 @@ namespace CDP.Objects
     public class Node
     {
         public Node() { }
+
+        [JsonIgnore]
+        public DOM? DOM { get; set; }
 
         [JsonPropertyName("nodeId")]
         public int? NodeId { get; set; }
@@ -115,7 +119,28 @@ namespace CDP.Objects
             options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 
-            return JsonSerializer.Serialize(this, options);
+            return JsonSerializer.Serialize(this, options); 
         }
+
+        #region Facade Methodes 
+        public async Task Click(MouseButtonEnum MouseButton, bool ScrollIntoViewIfNeed = false) // could maybe check if center is inside view port first and cancel if not
+        {
+            if (this.DOM == null) { throw new NullReferenceException(); }
+            if (this.NodeId == 0 || this.NodeId == null) { throw new NullReferenceException(); }
+
+            if (ScrollIntoViewIfNeed) { await this.DOM.ScrollIntoViewIfNeeded(this.NodeId.Value); }
+            
+            BoxModel box = await this.DOM.GetBoxModel(this.NodeId.Value);         
+            await this.DOM.DispatchMouseEvent(box.Center, MouseButton);
+        }
+
+        public async Task ScrollIntoView()
+        {
+            if (this.DOM == null) { throw new NullReferenceException(); }
+            if (this.NodeId == 0 || this.NodeId == null) { throw new NullReferenceException(); }
+
+            await this.DOM.ScrollIntoViewIfNeeded(this.NodeId.Value);
+        }
+        #endregion
     }
 }
