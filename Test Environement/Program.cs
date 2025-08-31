@@ -29,8 +29,14 @@ class Program // test environement
             await defaultTab.DOM.DispatchMouseEvent(box.Center, MouseButtonEnum.left);
         }
 
-        Node? searchButton = await defaultTab.SelectNode("button[class=\"w-100 h-100 min-h-12 button js-form-submit frm-submit btn btn-primary rounded-0\"]");
-        Console.WriteLine(searchButton);
+        //Node? searchButton = await defaultTab.SelectNode("button[class=\"w-100 h-100 min-h-12 button js-form-submit form-submit btn btn-primary rounded-0\"]");
+        //Console.WriteLine(searchButton);
+
+        Node[]? cards = await defaultTab.SelectNodes("a[class=\"stretched-link outlined-link-hover\"]");
+        if (cards == null) { return; }
+        foreach (Node node in cards) { Console.WriteLine(node); }
+
+        await browser.Close();
 
         return;
 
@@ -50,6 +56,6 @@ class Program // test environement
 
         Thread.Sleep(10000);
 
-        await browser.Close();
+       
     }
 }
