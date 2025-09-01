@@ -19,8 +19,11 @@ namespace CDP.Objects
     // add public string for chrome path
     public class Browser
     {
-        public Browser(bool Headless = false)
+        public Browser(string ChromeExectutablePath, bool Headless = false)
         {
+            if (string.IsNullOrWhiteSpace(ChromeExectutablePath)) { throw new ArgumentNullException(); }
+
+            this.ChromeExectutablePath = ChromeExectutablePath;
             this.Headless = Headless;
             this.WebsocketTargets = new List<WebsocketTarget>();
             this.Tabs = new List<Tab>();
@@ -33,17 +36,17 @@ namespace CDP.Objects
         public bool CloseRequested { get; set; }
         public int WindowId { get; set; }
         public bool Headless { get; }
+        public string ChromeExectutablePath { get; }
 
         public async Task<Browser?> Start()
         {
-            string chromePath = @"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"; // input 
             string arguments = Headless 
                 ? "--remote-debugging-port=9222  --headless --user-data-dir=\"C:\\temp\\chrome-debug\""
                 : "--remote-debugging-port=9222  --user-data-dir=\"C:\\temp\\chrome-debug\"";
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
-                FileName = chromePath,
+                FileName = this.ChromeExectutablePath,
                 Arguments = arguments,
                 UseShellExecute = false
             };
