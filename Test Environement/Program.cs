@@ -7,7 +7,7 @@
 using CDP.Objects;
 using CDP.Utils;
 
-Browser? browser = await new Browser().Start();
+Browser? browser = await new Browser(false).Start();
 if (browser == null) { throw new InvalidOperationException(); }
 await browser.SetWindowsBound(WindowStateEnum.maximized);
 
