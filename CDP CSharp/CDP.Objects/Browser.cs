@@ -98,8 +98,10 @@ namespace CDP.Objects
                 // we could add something like if the tab count is == 1 open a void tab first then close so browser doesn't shut down
                 HttpResponseMessage response = await client.GetAsync($@"http://localhost:9222/json/close/{Id}");
 
-                this.Tabs.RemoveAll(tab => tab.Id == Id);
-                this.WebsocketTargets.RemoveAll(tab => tab.Id == Id);
+                this.Tabs.RemoveAll(tab => tab != null && tab.Id == Id);
+                this.Tabs.RemoveAll(tab => tab == null);
+                this.WebsocketTargets.RemoveAll(tab => tab != null && tab.Id == Id);
+                this.WebsocketTargets.RemoveAll(tab => tab == null);
             }
         }
 
