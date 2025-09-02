@@ -12,13 +12,20 @@ namespace CDP.Commands
 {
     public class InputDispatchKeyEventCommand
     {
-        public InputDispatchKeyEventCommand(int Id, KeyEventTypeEnum KeyType, Char Key) // typeEnum 
+        public InputDispatchKeyEventCommand(int Id, KeyEventTypeEnum KeyType, Char? Text = null, string? Key = null, string? Code = null,
+            int? WindowsVirtualKeyCode = null, int? NativeVirtualKeyCode = null, int? Modifiers = null) // typeEnum 
+            
         {
             this.Id = Id;
             this.Method = "Input.dispatchKeyEvent";
             this.Params = new Dictionary<string, object>();
             this.Params.Add("type", KeyType.ToString());
-            this.Params.Add("text", Key);
+            if (Text != null) { this.Params.Add("text", Text); }
+            if (Key != null) { this.Params.Add("key", Key); }
+            if (Code != null) { this.Params.Add("code", Code); }
+            if (WindowsVirtualKeyCode != null) { this.Params.Add("windowsVirtualKeyCode", WindowsVirtualKeyCode); }
+            if (NativeVirtualKeyCode != null) { this.Params.Add("nativeVirtualKeyCode", NativeVirtualKeyCode); }
+            if (Modifiers != null) { this.Params.Add("modifiers", Modifiers); }
         }
 
         public int Id { get; }

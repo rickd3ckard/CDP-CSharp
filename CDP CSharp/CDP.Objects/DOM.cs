@@ -234,16 +234,17 @@ namespace CDP.Objects
             }
         }
 
-        public async Task DispatchKeyEvent(Char Key, TimeSpan? TimeOut = null)
+        public async Task DispatchKeyEvent(Char? Text = null, string? Key = null, string? Code = null,
+            int? WindowsVirtualKeyCode = null, int? NativeVirtualKeyCode = null, int? Modifiers = null, TimeSpan? TimeOut = null)
         {
             if (_document == null) { throw new NullReferenceException(); }
             if (TimeOut == null) { TimeOut = TimeSpan.FromSeconds(10); }
             Stopwatch stopWatch = Stopwatch.StartNew();
 
             int pressCommandId = 1; int releaseCommandId = 2;
-            await this.WebSocket.SendAsync(new InputDispatchKeyEventCommand(pressCommandId, KeyEventTypeEnum.keyDown, Key).Encode(),
+            await this.WebSocket.SendAsync(new InputDispatchKeyEventCommand(pressCommandId, KeyEventTypeEnum.keyDown, Text, Key, Code, WindowsVirtualKeyCode, NativeVirtualKeyCode, Modifiers).Encode(),
                 WebSocketMessageType.Text, true, CancellationToken.None);
-            await this.WebSocket.SendAsync(new InputDispatchKeyEventCommand(releaseCommandId, KeyEventTypeEnum.keyUp, Key).Encode(),
+            await this.WebSocket.SendAsync(new InputDispatchKeyEventCommand(releaseCommandId, KeyEventTypeEnum.keyUp, Text, Key, Code, WindowsVirtualKeyCode, NativeVirtualKeyCode, Modifiers).Encode(),
                 WebSocketMessageType.Text, true, CancellationToken.None);
 
             byte[] responseBuffer = new byte[1024];
@@ -312,7 +313,7 @@ namespace CDP.Objects
         {
             foreach (Char key in Text.ToCharArray())
             {
-                await this.DispatchKeyEvent(key);
+                await this.DispatchKeyEvent(Text: key);
             }
         }
     }
