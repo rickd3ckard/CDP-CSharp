@@ -187,6 +187,19 @@ namespace CDP.Objects
 
             return await this.DOM.GetBoxModel(this.NodeId.Value);
         }
+
+        public async Task SendKey(Char? Text = null, string? Key = null, string? Code = null,
+            int? WindowsVirtualKeyCode = null, int? NativeVirtualKeyCode = null, int? Modifiers = null, TimeSpan? TimeOut = null)
+        {
+            if (this.DOM == null) { throw new NullReferenceException(); }
+            await this.DOM.DispatchKeyEvent(Text, Key, Code, WindowsVirtualKeyCode, NativeVirtualKeyCode, Modifiers, TimeOut);
+        }
+
+        public async Task WriteText(string Text)
+        {
+            if (this.DOM == null) { throw new NullReferenceException(); }
+            await this.DOM.WriteText(Text);
+        }
         #endregion
     }
 }
