@@ -18,6 +18,8 @@ await tab.DOM.GetDocument(1, true, TimeSpan.FromSeconds(50));
 Node? declineCookieButton = await tab.SelectNode("button[id=\"CybotCookiebotDialogBodyButtonDecline\"]");
 if (declineCookieButton != null) { await declineCookieButton.Click(MouseButtonEnum.left, true); Thread.Sleep(500); }
 
+await new Waiter(tab).Wait("a[class=\"stretched-link outlined-link-hover\"]");
+
 Node[]? agentCards = await tab.SelectNodes("a[class=\"stretched-link outlined-link-hover\"]");
 if (agentCards == null) { return; }
 
