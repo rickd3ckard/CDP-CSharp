@@ -16,6 +16,7 @@ namespace CDP.Objects
     public class DOM
     {
         private JsonDocument? _document;
+        private int? _rootNodeId;
 
         public DOM(Tab Parent, string Id)
         {
@@ -29,6 +30,7 @@ namespace CDP.Objects
         public string Id { get; }
         public Tab Parent { get; }
         public JsonDocument? Document { get { return _document; } }
+        public int? RootNodeId { get { return _rootNodeId; } }
         private ClientWebSocket WebSocket { get; }
         
         public async Task<JsonDocument> GetDocument(int depth, Boolean pierce, TimeSpan? TimeOut = null) // return DOM to be able to chain GetDocument().QuerySelector()
@@ -57,9 +59,11 @@ namespace CDP.Objects
 
                     CommandResult? commandResult = JsonSerializer.Deserialize<CommandResult>(response);
                     if (commandResult == null) { throw new InvalidOperationException(); }
-                    if (commandResult.Id != commandId) { continue; }
-                    DOMDocument = commandResult.Result;
-                    _document = DOMDocument; return DOMDocument;
+                    if (commandResult.Id != commandId) { continue; } 
+                    
+                    _document = commandResult.Result;
+                    _rootNodeId = _document.RootElement.GetProperty("root").GetProperty("nodeId").GetInt32();
+                    return _document;
                 }
             }
         }

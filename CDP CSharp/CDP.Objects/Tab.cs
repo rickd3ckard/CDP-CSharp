@@ -143,25 +143,27 @@ namespace CDP.Objects
         }
 
         #region Facade methods
-        public async Task<Node?> SelectNode(string Selector, int NodeId = 1)
+        public async Task<Node?> SelectNode(string Selector, int? NodeId = null)
         {
             if (NodeId < 1) { throw new InvalidOperationException(); }
             if (this.DOM.Document == null) { throw new InvalidOperationException(); }
+            if (this.DOM.RootNodeId == null) { throw new InvalidOperationException(); }
 
-            int consideredNodeId = NodeId > 1 ? NodeId : 1;
-            int nodeId = await this.DOM.QuerySelector(consideredNodeId, Selector);
+            if (NodeId == null) { NodeId = this.DOM.RootNodeId ; }
+            int nodeId = await this.DOM.QuerySelector(NodeId.Value, Selector);
             if (nodeId == 0) { return null; }
 
             return await this.DOM.DescribeNode(nodeId);
         }
 
-        public async Task<Node[]?> SelectNodes(string Selector, int NodeId = 1)
+        public async Task<Node[]?> SelectNodes(string Selector, int? NodeId = null)
         {
             if (NodeId < 1) { throw new InvalidOperationException(); }
             if (this.DOM.Document == null) { throw new InvalidOperationException(); }
+            if (this.DOM.RootNodeId == null) { throw new InvalidOperationException(); }
 
-            int consideredNodeId = NodeId > 1 ? NodeId : 1;
-            int[] nodeIds = await this.DOM.QuerySelectorAll(consideredNodeId, Selector);
+            if (NodeId == null) { NodeId = this.DOM.RootNodeId; }
+            int[] nodeIds = await this.DOM.QuerySelectorAll(NodeId.Value, Selector);
             if (nodeIds.Length == 0) { return null; }
 
             List<Node> nodeList = new List<Node>();
