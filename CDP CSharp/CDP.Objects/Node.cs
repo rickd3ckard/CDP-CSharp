@@ -7,6 +7,8 @@
 using CDP.Utils;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CDP.Objects
 {
@@ -148,6 +150,18 @@ namespace CDP.Objects
             Node? textNode = this.Children.FirstOrDefault(n => n.NodeName == "#text");
             if (textNode == null) { return null; }
             return textNode.NodeValue;
+        }
+
+        public string? GetAllText()
+        {
+            if (this.Children == null || this.Children.Count() <= 0) { return null; }
+            Node[]? textNodes = this.Children.Where(n => n.NodeName == "#text").ToArray();
+            if (textNodes == null) { return null; }
+
+            string allText = string.Empty;
+            foreach (Node node in textNodes) { if (!string.IsNullOrWhiteSpace(node.NodeValue)) { allText += " " + node.NodeValue?.Trim(); } }
+            if (string.IsNullOrWhiteSpace(allText)) { return null; }
+            return allText;
         }
 
         public async Task<Node?> SelectNode(string Selector)
