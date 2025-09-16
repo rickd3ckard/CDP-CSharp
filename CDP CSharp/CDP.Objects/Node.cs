@@ -7,8 +7,6 @@
 using CDP.Utils;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 namespace CDP.Objects
 {
