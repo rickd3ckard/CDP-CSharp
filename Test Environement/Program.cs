@@ -7,7 +7,7 @@
 using CDP.Objects;
 using CDP.Utils;
 
-Browser? browser = await new Browser(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", false).Start();
+Browser? browser = await new Browser(@"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe", false, 9223).Start();
 if (browser == null) { throw new InvalidOperationException(); }
 await browser.SetWindowsBound(WindowStateEnum.maximized);
 
