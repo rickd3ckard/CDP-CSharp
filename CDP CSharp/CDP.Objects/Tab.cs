@@ -36,7 +36,7 @@ namespace CDP.Objects
             LayoutViewport? layout = new LayoutViewport();
             using (ClientWebSocket webSocket = new ClientWebSocket())
             {
-                Uri socketUri = new Uri("ws://localhost:9222/devtools/page/" + this.Id);
+                Uri socketUri = new Uri($"ws://localhost:{this.Parent.Port}/devtools/page/" + this.Id);
                 await webSocket.ConnectAsync(socketUri, CancellationToken.None);
                 await webSocket.SendAsync(new PageEnableCommand(1).Encode(),
                     WebSocketMessageType.Text, true, CancellationToken.None);
@@ -84,7 +84,7 @@ namespace CDP.Objects
         {
             using (HttpClient client = new HttpClient())
             {
-                await client.GetAsync($@"http://localhost:9222/json/activate/{this.Id}");
+                await client.GetAsync($@"http://localhost:{this.Parent.Port}/json/activate/{this.Id}");
             }
         }
 
@@ -101,7 +101,7 @@ namespace CDP.Objects
             int commandId = 1; LayoutViewport? layout = new LayoutViewport();
             using (ClientWebSocket webSocket = new ClientWebSocket())
             {
-                Uri socketUri = new Uri("ws://localhost:9222/devtools/page/" + this.Id);
+                Uri socketUri = new Uri($"ws://localhost:{this.Parent.Port}/devtools/page/" + this.Id);
                 await webSocket.ConnectAsync(socketUri, CancellationToken.None);
                 await webSocket.SendAsync(new PageGetLayoutMetricsCommand(1).Encode(),
                     WebSocketMessageType.Text, true, CancellationToken.None);

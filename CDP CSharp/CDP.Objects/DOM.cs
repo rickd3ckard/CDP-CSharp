@@ -24,7 +24,7 @@ namespace CDP.Objects
             this.Parent = Parent;
 
             this.WebSocket = new ClientWebSocket();
-            Task.Run(() =>  this.WebSocket.ConnectAsync(new Uri("ws://localhost:9222/devtools/page/" + Id), CancellationToken.None));
+            Task.Run(() =>  this.WebSocket.ConnectAsync(new Uri($"ws://localhost:{this.Parent.Parent.Port}/devtools/page/" + Id), CancellationToken.None));
         }
 
         public string Id { get; }

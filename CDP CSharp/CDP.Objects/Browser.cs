@@ -19,7 +19,7 @@ namespace CDP.Objects
     // add public string for chrome path
     public class Browser
     {
-        public Browser(string ChromeExectutablePath, bool Headless = false)
+        public Browser(string ChromeExectutablePath, bool Headless = false, int Port = 9222)
         {
             if (string.IsNullOrWhiteSpace(ChromeExectutablePath)) { throw new ArgumentNullException(); }
 
@@ -27,7 +27,8 @@ namespace CDP.Objects
             this.Headless = Headless;
             this.WebsocketTargets = new List<WebsocketTarget>();
             this.Tabs = new List<Tab>();
-            this.Version = new BrowserVersionMetadata(); 
+            this.Version = new BrowserVersionMetadata();
+            this.Port = Port;
         }
 
         public List<WebsocketTarget> WebsocketTargets { get; set; }
@@ -37,12 +38,13 @@ namespace CDP.Objects
         public int WindowId { get; set; }
         public bool Headless { get; }
         public string ChromeExectutablePath { get; }
+        public int Port { get; }
 
         public async Task<Browser?> Start()
         {
             string arguments = Headless 
-                ? "--remote-debugging-port=9222  --headless --user-data-dir=\"C:\\temp\\chrome-debug\""
-                : "--remote-debugging-port=9222  --user-data-dir=\"C:\\temp\\chrome-debug\"";
+                ? $"--remote-debugging-port={this.Port}  --headless --user-data-dir=\"C:\\temp\\chrome-debug\\{this.Port}\""
+                : $"--remote-debugging-port={this.Port}  --user-data-dir=\"C:\\temp\\chrome-debug\\{this.Port}\"";
 
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -66,7 +68,7 @@ namespace CDP.Objects
 
             using (HttpClient client = new HttpClient())
             {
-                HttpResponseMessage response = await client.GetAsync(@"http://localhost:9222/json");
+                HttpResponseMessage response = await client.GetAsync(@$"http://localhost:{this.Port}/json");
                 string jsonResponse = await response.Content.ReadAsStringAsync();
 
                 this.WebsocketTargets = JsonSerializer.Deserialize<List<WebsocketTarget>>(jsonResponse) ?? new List<WebsocketTarget>();
@@ -82,7 +84,7 @@ namespace CDP.Objects
         {
             using (HttpClient client = new HttpClient())
             {
-                HttpResponseMessage response = await client.GetAsync(@"http://localhost:9222/json/version");
+                HttpResponseMessage response = await client.GetAsync(@$"http://localhost:{this.Port}/json/version");
                 string jsonReponse = await response.Content.ReadAsStringAsync();
 
                 BrowserVersionMetadata? version = JsonSerializer.Deserialize<BrowserVersionMetadata>(jsonReponse);
@@ -96,7 +98,7 @@ namespace CDP.Objects
             using (HttpClient client = new HttpClient())
             {
                 // we could add something like if the tab count is == 1 open a void tab first then close so browser doesn't shut down
-                HttpResponseMessage response = await client.GetAsync($@"http://localhost:9222/json/close/{Id}");
+                HttpResponseMessage response = await client.GetAsync($@"http://localhost:{this.Port}/json/close/{Id}");
 
                 this.Tabs.RemoveAll(tab => tab != null && tab.Id == Id);
                 this.Tabs.RemoveAll(tab => tab == null);
@@ -109,7 +111,7 @@ namespace CDP.Objects
         {
             using (HttpClient client = new HttpClient())
             {
-                HttpResponseMessage response = await client.PutAsync($@"http://localhost:9222/json/new?{Uri.EscapeDataString(URL)}", new StringContent(string.Empty));
+                HttpResponseMessage response = await client.PutAsync($@"http://localhost:{this.Port}/json/new?{Uri.EscapeDataString(URL)}", new StringContent(string.Empty));
                 WebsocketTarget? newTabSocket = JsonSerializer.Deserialize<WebsocketTarget>(await response.Content.ReadAsStringAsync());
                 if (newTabSocket == null) { throw new InvalidCastException(); }
 
@@ -130,7 +132,7 @@ namespace CDP.Objects
             int commandId = 1; int windowId = -1;
             using (ClientWebSocket webSocket = new ClientWebSocket())
             {
-                Uri socketUri = new Uri("ws://localhost:9222/devtools/page/" + WebsocketId);
+                Uri socketUri = new Uri($"ws://localhost:{this.Port}/devtools/page/" + WebsocketId);
                 await webSocket.ConnectAsync(socketUri, CancellationToken.None);
                 await webSocket.SendAsync(new BrowserGetWindowForTarget(commandId).Encode(),
                     WebSocketMessageType.Text, true, CancellationToken.None);
