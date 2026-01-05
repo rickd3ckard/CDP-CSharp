@@ -96,7 +96,11 @@ namespace CDP.Objects
                     CommandResult? commandResult = JsonSerializer.Deserialize<CommandResult>(response);
                     if (commandResult == null) { throw new InvalidOperationException(); }
                     if (commandResult.Id != commandId) { continue; }
-                    return commandResult.Result.RootElement.GetProperty("nodeId").GetInt32();
+
+                    if (!commandResult.Result.RootElement.TryGetProperty("nodeId", out var nodeIdProperty)) {
+                        return 0;
+                    }
+                    return nodeIdProperty.GetInt32();
                }
             }
         }
@@ -129,7 +133,11 @@ namespace CDP.Objects
                     CommandResult? commandResult = JsonSerializer.Deserialize<CommandResult>(response);
                     if (commandResult == null) { throw new InvalidOperationException(); }
                     if (commandResult.Id != commandId) { continue; }
-                    string rawNodeIds = commandResult.Result.RootElement.GetProperty("nodeIds").GetRawText();
+
+                    if (!commandResult.Result.RootElement.TryGetProperty("nodeIds", out var nodeIdsProperty)) { 
+                        return new int[] {}; 
+                    }
+                    string rawNodeIds = nodeIdsProperty.GetRawText();
                     int[]? nodeIds = JsonSerializer.Deserialize<int[]>(rawNodeIds);
                     if (nodeIds == null) { throw new InvalidCastException(); }
                     return nodeIds;
