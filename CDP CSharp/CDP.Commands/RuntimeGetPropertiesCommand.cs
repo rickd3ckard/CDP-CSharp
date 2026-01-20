@@ -1,0 +1,45 @@
+﻿/* 
+ * Public domain software, no restrictions. 
+ * Released by rickd3ckard: https://github.com/rickd3ckard 
+ * See: https://unlicense.org/
+ */
+
+using CDP.Objects;
+using System.Text;
+using System.Text.Json;
+
+namespace CDP.Commands
+{
+    public class RuntimeGetPropertiesCommand
+    {
+        public RuntimeGetPropertiesCommand(int Id, string ObjectId, bool OwnProperties)
+        {
+            this.Id = Id;
+            this.Method = "Runtime.getProperties";
+            this.Params = new Dictionary<string, object>();
+            Params.Add("objectId", ObjectId);
+            Params.Add("ownProperties", OwnProperties);
+        }
+
+        public int Id { get; }
+        public string Method { get; }
+        public Dictionary<string, object> Params { get; }
+
+        public override string ToString()
+        {
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            options.WriteIndented = true;
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+
+            return JsonSerializer.Serialize(this, options);
+        }
+
+        public ArraySegment<byte> Encode()
+        {
+            string closeCommand = this.ToString();
+            byte[] encodedCommand = Encoding.UTF8.GetBytes(closeCommand);
+            ArraySegment<byte> buffer = new ArraySegment<byte>(encodedCommand);
+            return buffer;
+        }
+    }
+}
