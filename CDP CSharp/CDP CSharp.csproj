@@ -5,6 +5,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+	<PackageId>CDP-CSharp</PackageId>
+	<Version>1.0.0</Version>
+	<Authors>Rick D3ckard</Authors>
+	<Company>JLHF</Company>
+	<Description>CDP-CSharp is a C# class library that implements basic browser automation with bare minimal code to keep it understandable and customisable for your own needs.</Description>
+	<PackageTags>open-source website chrome automation csharp simple tool websocket scraping customizable cdp from-scratch browsing maintainable-code</PackageTags>
+	<RepositoryUrl>https://github.com/rickd3ckard/CDP-CSharp</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>
