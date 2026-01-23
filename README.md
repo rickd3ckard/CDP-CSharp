@@ -8,11 +8,11 @@ Oh yeah, but what about my very specific system requirements ? Oh yeah but but, 
 It is an immense pleasure to inform you that the library is now avaiable as a **[Nuget Package](https://www.nuget.org/packages/CDP-CSharp/)**! Here find the commend for a quick and easy installation: 
 ### .NET CLI
 ```bash
-dotnet add package Rickd3ckard.CDP-CSharp --version 1.0.0
+dotnet add package CDP-CSharp --version 1.0.0
 ```
 ### Package Manager (Visual Studio)
 ```bash
-Install-Package Rickd3ckard.CDP-CSharp -Version 1.0.0
+Install-Package CDP-CSharp -Version 1.0.0
 ```
 ## Manual installation guide for kids (dotnet)
 This Visual Studio Pro solution comes with **two separate projects**: One class library that contains the core and one console command project for testing and implementing. To get the precious .dll:
